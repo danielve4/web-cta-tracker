@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Transit - CTA</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,shrink-to-fit=no" />
+  <meta name="theme-color" content="#000000" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="stylesheet" media="screen" href="/css/screen.css" />
+</head>
+<body>
+<div id="page">
+  <header id="header">
+    <nav id="navbar">
+      <ul class="app-bar">
+        <li id="app-bar-title"><a href="./"><p>Transit - CTA</p></a></li>
+        <li id="app-bar-fav" class="hidden">
+          <button type="button" id="favorite-button" class="no-fill" value=""></button>
+        </li>
+      </ul>
+      <ul class="toolbar">
+        <li id="favorites-nav"><a href="./#favorites">FAVORITES</a></li>
+        <li id="routes-nav"><a href="./#routes">ROUTES</a></li>
+      </ul>
+    </nav>
+  </header>
+  <main id="content">
+    <ul id="favorites"></ul>
+    <ol id="routes"></ol>
+    <ul id="route-directions"></ul>
+    <ul id="stops"></ul>
+    <ol id="arrivals"></ol>
+    <ol id="follow"></ol>
+  </main>
+  <footer class="footer">
+  </footer>
+</div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script src="/js/site.js"></script>
+</body>
+</html>

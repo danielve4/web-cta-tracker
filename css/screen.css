@@ -1,0 +1,320 @@
+/* http://meyerweb.com/eric/tools/css/reset/
+   v2.0 | 20110126
+   License: none (public domain)
+*/
+/* stylelint-disable*/
+a,abbr,acronym,address,applet,article,aside,audio,b,big,blockquote,body,canvas,caption,center,cite,code,dd,del,details,dfn,div,dl,dt,em,embed,fieldset,figcaption,figure,footer,form,h1,h2,h3,h4,h5,h6,header,hgroup,html,i,iframe,img,ins,kbd,label,legend,li,mark,menu,nav,object,ol,output,p,pre,q,ruby,s,samp,section,small,span,strike,strong,sub,summary,sup,table,tbody,td,tfoot,th,thead,time,tr,tt,u,ul,var,video{margin:0;padding:0;border:0;font:inherit;vertical-align:baseline}article,aside,details,figcaption,figure,footer,header,hgroup,main,menu,nav,section{display:block}html{line-height:1}body{line-height:inherit}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:after,blockquote:before,q:after,q:before{content:'';content:none}table{border-collapse:collapse;border-spacing:0}
+/* stylelint-enable */
+
+/*
+http://www.modularscale.com/?22&px&1.125&web&text
+*/
+
+html {
+  font-size: 1.125em;     /*18px / 16px = 1.125em*/
+  line-height: 1.222em;   /*22px is 1 gridline at 18px | 22px / 18px = 1.222em*/
+  background-color: #303030;
+  color: #FFFFFF;
+  font-family: Roboto,"Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+h1 {
+  font-size: 1.9531111em;  /*35.156px / 18px = 1.9531111em*/
+  line-height: 1.251564456em; /*44px gridline at 35.156px | 44px / 35.156px = 1.251564456em*/
+  font-weight: 500;
+}
+
+a {
+  text-decoration: none;
+  display: block;
+  color: #FFFFFF;
+  font-weight: bold;
+}
+
+.hidden {
+  display: none;
+}
+
+nav {
+  position: absolute; /*The navbar stays at the top of the page, not visible after scrolling*/
+  width: 100%;
+  top: 0;
+  left: 0;
+  box-shadow: 0 0.11111em 0.27778em rgba(0,0,0,0.26); /*The shadow of the navigation bar 4px down, 8px blur radius*/
+  background: #212121;
+  height: 5.77777777778em; /* height of the navigation (56+48=104) 104px/18px = 5.77777777778em*/
+}
+
+.app-bar {
+  height: 3.11111111em; /*56px/18px = 3.11111111em*/
+}
+
+#app-bar-title {
+  font-size: 1.111111em; /*20px/18px = 1.111111em*/
+  line-height: 1.2em; /*24px/20px = 1.2em*/
+  padding-bottom: 1em; /*20px*/
+  padding-top: 0.6em; /*12px*/
+  padding-left: 0.8em; /*16px*/
+  width: 50%;
+  display: inline-block;
+  font-weight: bold;
+
+}
+
+#app-bar-fav {
+  float: right;
+}
+
+#favorite-button {
+  font-family: inherit;
+  height: 2.77777778em; /*50px/18px*/
+  width: 3.1111111em; /*56/18px*/
+  background-size: 1.33333333em; /*24px/18px*/
+  background-position: 50%;
+  font-size: 100%;
+  padding: 0;
+  border: 0;
+}
+
+#favorite-button.no-fill {
+  background: url("../icons/ic_favorite_border_black_24px.svg") no-repeat;
+  background-position: 50%;
+}
+
+#favorite-button.fill {
+  background: url("../icons/ic_favorite_black_24px.svg") no-repeat;
+  background-position: 50%;
+}
+
+.toolbar li {
+  float: left;
+  width: 50%; /*2 links in nav bar = 1/2 of width of navbar per link*/
+}
+
+.toolbar a {
+  display: block;
+  text-align: center;
+  font-size: 0.7777777777em; /*14px/18px = 0.7777778em*/
+  line-height: 1em;
+  padding: 1em 0.8571438571em 1.285714286em 0.8571438571em; /* 14px 12px 18px 12px @ 18px/em | 18px to leave room for the white line underneath the links*/
+  border-bottom: 0.1428571429em solid #212121; /*Transparent bar to activate when selected | 2px / 14px = 0.1428571429em*/
+  color: #EDEDED;
+  font-weight: normal;
+}
+
+.active a {
+  color: #fff;
+  font-weight: bold;
+  border-bottom: 0.1428571429em solid #fff; /*Activate the bottom border to white when selected | 2px / 14px = 0.1428571429em*/
+}
+
+#favorites,
+#routes,
+#route-directions,
+#stops,
+#arrivals,
+#follow {
+  margin-top: 5.7777777778em; /*104px/18px = 5.7777777778em*/
+}
+
+#favorites li a,
+#routes li a,
+#route-directions li a,
+#stops li a {
+  padding-bottom: 0.72222222em; /*13px*/
+  padding-top: 0.72222222em; /*13px*/
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.route-direction {
+  display: inline-block;
+  width: 1.38888889em; /*25px/18px*/
+  font-weight: normal;
+}
+
+#stops li {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#arrivals .prediction a,
+#follow .prediction a {
+  padding-bottom: 1.38888889em; /*25px*/
+  padding-top: 1.38888889em; /*25px*/
+}
+
+#follow .destination {
+  width: 75%;
+  display: inline-block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.follow-stop a {
+  color: #f50057;
+}
+
+.list-subheader {
+  font-size: 0.777777778em; /*14px/18px = 0.777777778em*/
+  line-height: 3.428571429em; /*48px / 14px = 3.428571429em*/
+  height: 3.428571429em; /*48px / 14px = 3.428571429em*/
+  padding-bottom: 0;
+  padding-top: 0;
+  color: #9e9e9e;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.route-number {
+  display: inline-block;
+  width: 2.5em;
+  color: #80CBC4;
+}
+
+.line-color {
+  display: inline-block;
+  width: 1em; /*18px*/
+  height: 1em; /*18px*/
+  margin-right: 1.5em; /*27px* | 45px-18px = 27px*/
+  border-radius: 50%;
+}
+
+.line-color.Blu {
+  background-color: #00a1de;
+}
+
+.line-color.Bro {
+  background-color: #62361b;
+}
+
+.line-color.Gre {
+  background-color: #009b3a;
+}
+
+.line-color.Ora {
+  background-color: #f9461c;
+}
+
+.line-color.Pin {
+  background-color: #e27ea6;
+}
+
+.line-color.Pur {
+  background-color: #522398;
+}
+
+.line-color.Red {
+  background-color: #c60c30;
+}
+
+.line-color.Yel {
+  background-color: #f9e300;
+}
+
+.arrival-time {
+  font-size: 1.802055556em;
+  float: right;
+}
+
+.delayed {
+  display: block;
+  position: absolute;
+  left: 3.11111111em; /*45px + 11px = 56px = 3.11111em @ 18px*/
+  color:  #f44336;
+}
+
+.scheduled {
+  display: block;
+  position: absolute;
+  left: 3.11111111em; /*45px + 11px = 56px = 3.11111em @ 18px*/
+  color: #ffeb3b;
+}
+
+.arrival-clock {
+  display: block;
+  position: absolute;
+  right: 0.611111111em;/*hald gridline = 11px*/
+  color: #EDEDED;
+}
+
+#page {
+  padding: 0.611111111em; /*half gridline*/
+}
+
+/* 480px @ 16px/em*/
+@media screen and (min-width: 30em) {
+
+  #page {
+    padding-left: 3.33333%;
+    padding-right: 3.33333%;
+  }
+
+  .arrival-clock {
+    right: 3.33333%;
+  }
+
+  .scheduled,
+  .delayed {
+    left: calc(3.33333% + 2.5em); /*45px = 2.5em @ 18px*/
+  }
+}
+
+/* 600px @ 16px/em*/
+/* Based on an 8 column grid with 16px gutters*/
+@media screen and (min-width: 37.5em) {
+
+  #page {
+    padding-left: 2.66667%;
+    padding-right: 2.66667%;
+  }
+
+  .arrival-clock {
+    right: 2.66667%;
+  }
+
+  .scheduled,
+  .delayed {
+    left: calc(2.66667% + 2.5em); /*45px = 2.5em @ 18px*/
+  }
+}
+
+/* 840px @ 16px/em*/
+/* Based on a 12 column grid with 24px gutters*/
+@media screen and (min-width: 52.5em) {
+  #page {
+    padding-left: 19.04762%;
+    padding-right: 19.04762%;
+  }
+
+  .arrival-clock {
+    right: 19.04762%;
+  }
+
+  .scheduled,
+  .delayed {
+    left: calc(19.04762% + 2.5em); /*45px = 2.5em @ 18px*/
+  }
+}
+
+/* 1440px @ 16px/em*/
+/* Based on a 12 column grid with 24px gutters*/
+@media screen and (min-width: 90em) {
+  #page {
+    padding-left: 26.25%;
+    padding-right: 26.25%;
+  }
+
+  .arrival-clock {
+    right: 26.25%;
+  }
+
+  .scheduled,
+  .delayed {
+    left: calc(26.25% + 2.5em); /*45px = 2.5em @ 18px*/
+  }
+}
