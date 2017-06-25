@@ -17,7 +17,6 @@ jQuery(function($) {
       });
     });
 
-
     function decideScreen() {
       if(!location.hash) {
         if(loadFavorites() > 0) {
@@ -165,11 +164,23 @@ jQuery(function($) {
       $('#stops').append(
         '<li class="list-subheader">Route '+routes[route].routeName+' - '+ direction+' -  Choose a stop</li>'
       );
+      var routeAndDirection = {
+        'route': route,
+        'direction': direction
+      };
+
       $.when($.ajax({
-        type: 'GET',
-        url: '/cta/bus/'+route+','+direction
+        "async": true,
+        "crossDomain": true,
+        "url": "https://us-central1-cta-tracking-functions.cloudfunctions.net/routeStops",
+        "method": "POST",
+        "headers": {
+          "content-type": "application/json"
+        },
+        "processData": false,
+        "data": JSON.stringify(routeAndDirection)
       })).then(function(data) {
-        listRouteStops(data, route, direction);
+        listRouteStops(data['bustime-response'].stops, route, direction);
       }, function () {
         console.log('Error');
       });
