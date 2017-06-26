@@ -361,9 +361,19 @@ jQuery(function($) {
     function getFollowBusPredictions(routeNumber, vehicleId, stopId, direction) {
       $('#follow').empty();
       $('#follow').append('<li class="list-subheader">Bus #'+vehicleId+' - '+routeNumber+' - '+ direction+'</li>');
+      var busVehicleId = {
+        'vehicleId': vehicleId
+      };
       $.when($.ajax({
-        type: 'GET',
-        url: '/cta/bus/follow/'+vehicleId
+        "async": true,
+        "crossDomain": true,
+        "url": "https://us-central1-cta-tracking-functions.cloudfunctions.net/busFollow  ",
+        "method": "POST",
+        "headers": {
+          "content-type": "application/json"
+        },
+        "processData": false,
+        "data": JSON.stringify(busVehicleId)
       })).then(function(data) {
         listFollowBus(data, stopId);
       }, function () {
