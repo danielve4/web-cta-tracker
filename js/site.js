@@ -205,14 +205,25 @@ jQuery(function($) {
       var trDr = direction.trainDirection;
       $('#arrivals').empty();
       $('#arrivals').append('<li class="list-subheader">'+stop.stationName+' - '+stop.direction+' Bound</li>');
+      var trainMapId = {
+        'mapId': ''+mapId+''
+      };
+      console.log(trainMapId);
       $.when($.ajax({
-        type: 'GET',
-        url: '/cta/train/'+mapId
-      })).then(function(data) {
+        "async": true,
+        "crossDomain": true,
+        "url": "https://us-central1-cta-tracking-functions.cloudfunctions.net/trainPredictions",
+        "method": "POST",
+        "headers": {
+          "content-type": "application/json"
+        },
+        "processData": false,
+        "data": JSON.stringify(trainMapId)
+      })).then(function(data, textStatus, request) {
         listTrainPrediction(data, trDr, stopId, lineIndex, directionIndex, stopIndex);
         console.log(data);
-      }, function () {
-        console.log('Error');
+      }, function (request, textStatus, errorThrown) {
+        console.log(request.getAllResponseHeaders());
       });
     }
 
@@ -312,9 +323,19 @@ jQuery(function($) {
       var stop = trainLines.stops[stopIndex];
       $('#follow').empty();
       $('#follow').append('<li class="list-subheader">Train Run #'+runNumber+' - '+line.lineName+' Line - '+direction.direction+'</li>');
+      var trainRunNumber = {
+        'runnum':''+runNumber+''
+      };
       $.when($.ajax({
-        type: 'GET',
-        url: '/cta/train/follow/'+runNumber
+        "async": true,
+        "crossDomain": true,
+        "url": "https://us-central1-cta-tracking-functions.cloudfunctions.net/trainFollow",
+        "method": "POST",
+        "headers": {
+          "content-type": "application/json"
+        },
+        "processData": false,
+        "data": JSON.stringify(trainRunNumber)
       })).then(function(data) {
         listFollowTrain(data, stop.mapId);
       }, function () {
