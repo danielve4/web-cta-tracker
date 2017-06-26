@@ -219,9 +219,19 @@ jQuery(function($) {
     function getBusPredictions(routeNumber, routeName, direction, stopId) {
       $('#arrivals').empty();
       $('#arrivals').append('<li class="list-subheader">'+routeName+' - '+ direction+'</li>');
+      var stop = {
+        'stopId': stopId
+      };
       $.when($.ajax({
-        type: 'GET',
-        url: '/cta/bus/'+stopId
+        "async": true,
+        "crossDomain": true,
+        "url": "https://us-central1-cta-tracking-functions.cloudfunctions.net/busPredictions",
+        "method": "POST",
+        "headers": {
+          "content-type": "application/json"
+        },
+        "processData": false,
+        "data": JSON.stringify(stop)
       })).then(function(data) {
         listPredictions(data, routeNumber);
       }, function () {
