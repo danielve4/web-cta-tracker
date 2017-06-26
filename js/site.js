@@ -376,6 +376,12 @@ jQuery(function($) {
             '</li>'
           );
         }
+      } else {
+        $('#follow').append(
+            '<li class="prediction">' +
+            '<span>Unable to determine upcoming stops.</span>'+
+            '</li>'
+          );
       }
     }
 
