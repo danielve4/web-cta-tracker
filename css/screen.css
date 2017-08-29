@@ -146,6 +146,10 @@ nav {
   padding-top: 1.38888889em; /*25px*/
 }
 
+.destination {
+  font-size: 0.88888889em; /* 16px */
+}
+
 #follow .destination {
   width: 75%;
   display: inline-block;
@@ -217,6 +221,7 @@ nav {
 }
 
 .arrival-time {
+  width: auto;
   font-size: 1.802055556em;
   float: right;
 }
