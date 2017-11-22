@@ -3,7 +3,8 @@ jQuery(function($) {
   $(document).ready(function() {
     var FAV='fav',ROUTES='routes',DIRECT='directions',STOPS='stops',
       ARRIVALS='arrivals', FOLLOW='follow';
-    var storageItem = 'favorites'; //Name of item in localStorage
+    var lsBusStops = 'lsBusStops'; //Name of item in localStorage for bus stops
+    var lsFavorites = 'favorites'; //Name of item in localStorage
     var favorites = [];
     var trainLines;
     var routes;
@@ -488,7 +489,7 @@ jQuery(function($) {
 
     function loadFavorites() {
       var favoritesJSON;
-      favorites = localStorage.getItem(storageItem);
+      favorites = localStorage.getItem(lsFavorites);
       try {
         favoritesJSON = JSON.parse(favorites);
         if (favoritesJSON && typeof favoritesJSON === "object") {
@@ -539,7 +540,7 @@ jQuery(function($) {
           };
         }
         favorites.favorites.push(newFavorite);
-        localStorage.setItem(storageItem, JSON.stringify(favorites));
+        localStorage.setItem(lsFavorites, JSON.stringify(favorites));
         $('#favorite-button').removeClass('no-fill');
         $('#favorite-button').addClass('fill');
       }
@@ -549,7 +550,7 @@ jQuery(function($) {
       var index = isFavorite();
       if(index >= 0) {
         favorites.favorites.splice(index, 1);
-        localStorage.setItem(storageItem, JSON.stringify(favorites));
+        localStorage.setItem(lsFavorites, JSON.stringify(favorites));
         $('#favorite-button').removeClass('fill');
         $('#favorite-button').addClass('no-fill');
       }
