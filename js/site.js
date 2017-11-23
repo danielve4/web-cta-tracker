@@ -3,7 +3,9 @@ jQuery(function($) {
   $(document).ready(function() {
     var FAV='fav',ROUTES='routes',DIRECT='directions',STOPS='stops',
       ARRIVALS='arrivals', FOLLOW='follow';
-    var lsBusStops = 'lsBusStops'; //Name of item in localStorage for bus stops
+    var lsBusRoutes = 'lsBusStops'; //Name of item in localStorage for bus stops
+    var lsBusDirections = 'lsBusDirections';
+    var lsBusRouteStops = 'lsBusRouteStops';
     var lsFavorites = 'favorites'; //Name of item in localStorage
     var favorites = [];
     var trainLines;
@@ -11,11 +13,12 @@ jQuery(function($) {
     $.getJSON('allTrainStops.json', function(json) {
       trainLines = json;
       console.log('loaded trainLines');
-      $.getJSON('stops.json', function(json) {
-        routes = json;
-        console.log('loaded routes');
-        decideScreen();
-      });
+      decideScreen();
+      // $.getJSON('stops.json', function(json) {
+      //   routes = json;
+      //   console.log('loaded routes');
+      //   decideScreen();
+      // });
     });
 
     function decideScreen() {
@@ -25,8 +28,6 @@ jQuery(function($) {
           listFavorites();
         } else {
           setScreenTo(ROUTES);
-          listTrainLines();
-          listRoutes();
         }
       } else {
         var context = parseHash(location.hash);
@@ -35,8 +36,6 @@ jQuery(function($) {
           listFavorites();
         } else  if(context.hasOwnProperty('routes')) {
           setScreenTo(ROUTES);
-          listTrainLines();
-          listRoutes();
         } else if(context.hasOwnProperty('rt')) {
           if(context.hasOwnProperty('dir') &&
             !context.hasOwnProperty('stop-id')) {
@@ -84,6 +83,23 @@ jQuery(function($) {
       }
     }
 
+    function getBusRoutes() {
+      $.when($.ajax({
+        "async": true,
+        "crossDomain": true,
+        "url": "https://us-central1-cta-tracking-functions.cloudfunctions.net/busGetAllRoutes",
+        "method": "GET",
+        "headers": {
+          "content-type": "application/json"
+        },
+        "processData": false
+      })).then(function(data) {
+        routes = data;
+      }, function () {
+        console.log('Error');
+      });
+    }
+
     function listTrainLines() {
       $('#routes').empty();
       var line;
@@ -99,7 +115,7 @@ jQuery(function($) {
       }
     }
 
-    function listRoutes() {
+    function listBusRoutes() {
       var route;
       for(var i=0; i<routes.routes.length; i++) {
         route = routes.routes[i];
@@ -615,6 +631,8 @@ jQuery(function($) {
           $('#routes').removeClass('hidden');
           $('#routes-nav').addClass('active');
           $('#favorites-nav').removeClass('active');
+          listTrainLines();
+          listBusRoutes();
           break;
         case DIRECT:
           $('#route-directions').removeClass('hidden');
