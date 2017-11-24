@@ -83,21 +83,32 @@ jQuery(function($) {
       }
     }
 
-    function getBusRoutes() {
-      $.when($.ajax({
-        "async": true,
-        "crossDomain": true,
-        "url": "https://us-central1-cta-tracking-functions.cloudfunctions.net/busGetAllRoutes",
-        "method": "GET",
-        "headers": {
-          "content-type": "application/json"
-        },
-        "processData": false
-      })).then(function(data) {
-        routes = data;
-      }, function () {
-        console.log('Error');
+    function getRequest(url) {
+      return new Promise((resolve,reject) => {
+        $.when($.ajax({
+          "async": true,
+          "crossDomain": true,
+          "url": url,
+          "method": "GET",
+          "headers": {
+            "content-type": "application/json"
+          },
+          "processData": false
+        })).then(function(data) {
+          resolve(data);
+        }, function () {
+          reject("Error");
+        });
       });
+    }
+
+    function getBusRoutes() {
+      var busRoutes;
+      if(!busRoutes) {
+        var url = 'https://us-central1-cta-tracking-functions.cloudfunctions.net/busGetAllRoutes';
+        return getRequest(url);
+      } 
+      return busRoutes;
     }
 
     function listTrainLines() {
@@ -115,15 +126,16 @@ jQuery(function($) {
       }
     }
 
-    function listBusRoutes() {
+    async function listBusRoutes() {
+      var busRoutes = await getBusRoutes();
       var route;
-      for(var i=0; i<routes.routes.length; i++) {
-        route = routes.routes[i];
+      for(var i=0; i< busRoutes.routes.length; i++) {
+        route = busRoutes.routes[i];
         $('#routes').append(
           '<li>' +
-            '<a href="#rt='+route.routeNumber+'"id="'+route.routeNumber+'">' +
-              '<span class="route-number">'+route.routeNumber+ '</span>' +
-              '<span class="route-name">' +route.routeName+ '</span>' +
+            '<a href="#rt='+route.rt+'"id="'+route.rt+'">' +
+              '<span class="route-number">'+route.rt+ '</span>' +
+              '<span class="route-name">' +route.rtnm+ '</span>' +
             '</a>' +
           '</li>'
         );
@@ -143,14 +155,25 @@ jQuery(function($) {
       }
     }
 
-    function listRouteDirections(rNumber) {
-      var route = routes[rNumber];
+    function getBusRouteDirections(busRoute) {
+      var busRouteDirections;
+      if(!busRouteDirections) {
+        var url = 'https://us-central1-cta-tracking-functions.cloudfunctions.net/'+
+        'busGetBusRouteDirections/?busRoute='+busRoute;
+        return getRequest(url);
+      }
+      return busRouteDirections;
+    }
+
+    async function listRouteDirections(rNumber) {
       $('#route-directions').empty();
+      var busRouteDirections = await getBusRouteDirections(rNumber);
+      console.log(busRouteDirections);
       $('#route-directions').append('<li class="list-subheader">Route '+rNumber+' - Choose a direction</li>');
-      for(var j=0;j<route.directions.length;j++) {
+      for(var j=0;j<busRouteDirections.directions.length;j++) {
         $('#route-directions').append(
-          '<li><a href="#rt='+rNumber+'#dir='+route.directions[j]+'">'
-          +route.directions[j]+
+          '<li><a href="#rt='+rNumber+'#dir='+busRouteDirections.directions[j].dir+'">'
+          +busRouteDirections.directions[j].dir+
           '</a></li>'
         );
       }
@@ -179,7 +202,7 @@ jQuery(function($) {
     function getRouteStops(route, direction) {
       $('#stops').empty();
       $('#stops').append(
-        '<li class="list-subheader">Route '+routes[route].routeName+' - '+ direction+' -  Choose a stop</li>'
+        '<li class="list-subheader">Route '+ route +' - '+ direction+' -  Choose a stop</li>'
       );
       var routeAndDirection = {
         'route': route,
@@ -253,13 +276,13 @@ jQuery(function($) {
       $.when($.ajax({
         "async": true,
         "crossDomain": true,
-        "url": "https://us-central1-cta-tracking-functions.cloudfunctions.net/busPredictions",
-        "method": "POST",
+        "url": "https://us-central1-cta-tracking-functions.cloudfunctions.net/"+
+        "busGetPredictions/?busStopId="+stopId,
+        "method": "GET",
         "headers": {
           "content-type": "application/json"
         },
-        "processData": false,
-        "data": JSON.stringify(stop)
+        "processData": false
       })).then(function(data) {
         listPredictions(data, routeNumber);
       }, function () {
