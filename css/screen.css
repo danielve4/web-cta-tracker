@@ -109,7 +109,7 @@ nav {
 }
 
 #favorites,
-#routes,
+#train-lines,
 #route-directions,
 #stops,
 #arrivals,
@@ -118,6 +118,7 @@ nav {
 }
 
 #favorites li a,
+#train-lines li a,
 #routes li a,
 #route-directions li a,
 #stops li a {
