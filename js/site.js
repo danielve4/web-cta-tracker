@@ -8,18 +8,7 @@ jQuery(function($) {
     var lsBusRouteStops = 'lsBusRouteStops';
     var lsFavorites = 'favorites'; //Name of item in localStorage
     var favorites = [];
-    var trainLines;
-    var routes;
-    $.getJSON('allTrainStops.json', function(json) {
-      trainLines = json;
-      console.log('loaded trainLines');
-      decideScreen();
-      // $.getJSON('stops.json', function(json) {
-      //   routes = json;
-      //   console.log('loaded routes');
-      //   decideScreen();
-      // });
-    });
+    decideScreen();
 
     function decideScreen() {
       if(!location.hash) {
@@ -102,6 +91,15 @@ jQuery(function($) {
       });
     }
 
+    function getTrainLines() {
+      var trainLines;
+      if(!trainLines) {
+        var url = 'allTrainStops.json';
+        return getRequest(url);
+      }
+      return trainLines;
+    }
+
     function getBusRoutes() {
       var busRoutes;
       if(!busRoutes) {
@@ -111,8 +109,9 @@ jQuery(function($) {
       return busRoutes;
     }
 
-    function listTrainLines() {
+    async function listTrainLines() {
       $('#train-lines').empty();
+      var trainLines = await getTrainLines();
       var line;
       for(var i=0; i<trainLines.trainLines.length; i++) {
         line = trainLines.trainLines[i];
@@ -143,7 +142,8 @@ jQuery(function($) {
       }
     }
 
-    function listLineDirections(lineIndex) {
+    async function listLineDirections(lineIndex) {
+      var trainLines = await getTrainLines();
       var line = trainLines.trainLines[lineIndex];
       $('#route-directions').empty();
       $('#route-directions').append('<li class="list-subheader">'+line.lineName+' Line - Choose a direction</li>');
@@ -180,7 +180,8 @@ jQuery(function($) {
       }
     }
 
-    function listLineStops(lineIndex, directionIndex) {
+    async function listLineStops(lineIndex, directionIndex) {
+      var trainLines = await getTrainLines();
       var line = trainLines.trainLines[lineIndex];
       var direction = line.directions[directionIndex];
       var aStop;
@@ -237,7 +238,8 @@ jQuery(function($) {
       }
     }
 
-    function getTrainPredictions(lineIndex, directionIndex, stopIndex) {
+    async function getTrainPredictions(lineIndex, directionIndex, stopIndex) {
+      var trainLines = await getTrainLines();
       var line = trainLines.trainLines[lineIndex];
       var direction = line.directions[directionIndex];
       var stop = trainLines.stops[stopIndex];
@@ -358,7 +360,8 @@ jQuery(function($) {
       }
     }
 
-    function getFollowTrainPredictions(runNumber, lineIndex, directionIndex, stopIndex) {
+    async function getFollowTrainPredictions(runNumber, lineIndex, directionIndex, stopIndex) {
+      var trainLines = await getTrainLines();
       var line = trainLines.trainLines[lineIndex];
       var direction = line.directions[directionIndex];
       var stop = trainLines.stops[stopIndex];
@@ -493,8 +496,9 @@ jQuery(function($) {
       toggleFavorite();
     });
 
-    function listFavorites() {
+    async function listFavorites() {
       $('#favorites').empty();
+      var trainLines = await getTrainLines();
       loadFavorites();
       var route, routeName, direction, stopI, fav;
       for(var p=0;p<favorites.favorites.length;p++) {
