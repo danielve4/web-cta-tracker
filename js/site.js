@@ -112,11 +112,11 @@ jQuery(function($) {
     }
 
     function listTrainLines() {
-      $('#routes').empty();
+      $('#train-lines').empty();
       var line;
       for(var i=0; i<trainLines.trainLines.length; i++) {
         line = trainLines.trainLines[i];
-        $('#routes').append(
+        $('#train-lines').append(
           '<li>' +
             '<a href="#tl='+i+'">'+
               '<span class="line-color '+line.lineName.substring(0,3)+'"></span>'+
@@ -127,6 +127,7 @@ jQuery(function($) {
     }
 
     async function listBusRoutes() {
+      $('#routes').empty();
       var busRoutes = await getBusRoutes();
       var route;
       for(var i=0; i< busRoutes.routes.length; i++) {
@@ -434,7 +435,7 @@ jQuery(function($) {
       $.when($.ajax({
         "async": true,
         "crossDomain": true,
-        "url": "https://us-central1-cta-tracking-functions.cloudfunctions.net/busFollow  ",
+        "url": "https://us-central1-cta-tracking-functions.cloudfunctions.net/busFollow",
         "method": "POST",
         "headers": {
           "content-type": "application/json"
@@ -639,6 +640,7 @@ jQuery(function($) {
     function setScreenTo(type) {
       $('#favorites').addClass('hidden');
       $('#routes').addClass('hidden');
+      $("#train-lines").addClass('hidden');
       $('#route-directions').addClass('hidden');
       $('#stops').addClass('hidden');
       $('#arrivals').addClass('hidden');
@@ -652,6 +654,7 @@ jQuery(function($) {
           break;
         case ROUTES:
           $('#routes').removeClass('hidden');
+          $("#train-lines").removeClass('hidden');
           $('#routes-nav').addClass('active');
           $('#favorites-nav').removeClass('active');
           listTrainLines();
