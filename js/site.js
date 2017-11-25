@@ -270,27 +270,16 @@ jQuery(function($) {
       });
     }
 
-    function getBusPredictions(routeNumber, routeName, direction, stopId) {
+    async function getBusPredictions(routeNumber, routeName, direction, stopId) {
       $('#arrivals').empty();
       $('#arrivals').append('<li class="list-subheader">'+routeName+' - '+ direction+'</li>');
       var stop = {
         'stopId': stopId
       };
-      $.when($.ajax({
-        "async": true,
-        "crossDomain": true,
-        "url": "https://us-central1-cta-tracking-functions.cloudfunctions.net/"+
-        "busGetPredictions/?busStopId="+stopId,
-        "method": "GET",
-        "headers": {
-          "content-type": "application/json"
-        },
-        "processData": false
-      })).then(function(data) {
-        listPredictions(data, routeNumber);
-      }, function () {
-        console.log('Error');
-      });
+      var url = "https://us-central1-cta-tracking-functions.cloudfunctions.net/"+
+      "busGetPredictions/?busStopId="+stopId
+      var predictions = await getRequest(url);
+      listPredictions(predictions, routeNumber);
     }
 
     function listTrainPrediction(predictions, trDr, stopId, lineIndex, directionIndex, stopIndex) {
@@ -637,7 +626,6 @@ jQuery(function($) {
           }
         }
       }
-
       return -1;
     }
 
