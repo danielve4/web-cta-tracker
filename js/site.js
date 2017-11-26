@@ -213,14 +213,14 @@ jQuery(function($) {
     }
 
     async function getBusRouteStops(route, direction) {
-      var busRouteStops = localStorage.getItem('lsBusStops'+route);
+      var busRouteStops = localStorage.getItem('lsBusStops'+route+direction);
       if(busRouteStops)
         busRouteStops = JSON.parse(busRouteStops);
       else {
         var url = 'https://us-central1-cta-tracking-functions.cloudfunctions.net/'+
         'busGetBusStops/?busRoute='+route+'&direction='+direction;
         busRouteStops = await getRequest(url);
-        localStorage.setItem('lsBusStops'+route,JSON.stringify(busRouteStops));
+        localStorage.setItem('lsBusStops'+route+direction,JSON.stringify(busRouteStops));
       }
       return busRouteStops;
     }
