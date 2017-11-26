@@ -4,8 +4,8 @@ jQuery(function($) {
     var FAV='fav',ROUTES='routes',DIRECT='directions',STOPS='stops',
       ARRIVALS='arrivals', FOLLOW='follow';
     var LS_BUS_ROUTES = 'lsBusRoutes'; //Name of item in localStorage for bus stops
-    var LS_TRAIN_LINES = 'lsTrainLines';
-    var lsFavorites = 'favorites'; //Name of item in localStorage
+    var LS_TRAIN_LINES = 'lsTrainLines'; //Name of item in localStorage for train lines
+    var lsFavorites = 'favorites'; //Name of item in localStorage for user favorites
     var favorites = [];
     decideScreen();
 
