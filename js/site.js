@@ -3,9 +3,8 @@ jQuery(function($) {
   $(document).ready(function() {
     var FAV='fav',ROUTES='routes',DIRECT='directions',STOPS='stops',
       ARRIVALS='arrivals', FOLLOW='follow';
-    var lsBusRoutes = 'lsBusStops'; //Name of item in localStorage for bus stops
-    var lsBusDirections = 'lsBusDirections';
-    var lsBusRouteStops = 'lsBusRouteStops';
+    var LS_BUS_ROUTES = 'lsBusRoutes'; //Name of item in localStorage for bus stops
+    var LS_TRAIN_LINES = 'lsTrainLines';
     var lsFavorites = 'favorites'; //Name of item in localStorage
     var favorites = [];
     decideScreen();
@@ -29,7 +28,7 @@ jQuery(function($) {
           if(context.hasOwnProperty('dir') &&
             !context.hasOwnProperty('stop-id')) {
             setScreenTo(STOPS);
-            getRouteStops(context.rt,context['dir']);
+            listRouteStops(context.rt,context['dir']);
           }
           else if(context.hasOwnProperty('rt-name') &&
                   context.hasOwnProperty('dir') &&
@@ -73,6 +72,7 @@ jQuery(function($) {
     }
 
     function getRequest(url) {
+      console.log("Making a get request");
       return new Promise((resolve,reject) => {
         $.when($.ajax({
           "async": true,
@@ -87,25 +87,32 @@ jQuery(function($) {
           resolve(data);
         }, function () {
           reject("Error");
+          console.log("error");
         });
       });
     }
 
-    function getTrainLines() {
-      var trainLines;
-      if(!trainLines) {
+    async function getTrainLines() {
+      var trainLines = localStorage.getItem(LS_TRAIN_LINES);
+      if(trainLines)
+        trainLines = JSON.parse(trainLines);
+      else {
         var url = 'allTrainStops.json';
-        return getRequest(url);
+        trainLines = await getRequest(url);
+        localStorage.setItem(LS_TRAIN_LINES,JSON.stringify(trainLines));
       }
       return trainLines;
     }
 
-    function getBusRoutes() {
-      var busRoutes;
-      if(!busRoutes) {
+    async function getBusRoutes() {
+      var busRoutes = localStorage.getItem(LS_BUS_ROUTES);
+      if(busRoutes) 
+        busRoutes = JSON.parse(busRoutes);
+      else {
         var url = 'https://us-central1-cta-tracking-functions.cloudfunctions.net/busGetAllRoutes';
-        return getRequest(url);
-      } 
+        busRoutes = await getRequest(url);
+        localStorage.setItem(LS_BUS_ROUTES,JSON.stringify(busRoutes));
+      }
       return busRoutes;
     }
 
@@ -156,12 +163,16 @@ jQuery(function($) {
       }
     }
 
-    function getBusRouteDirections(busRoute) {
-      var busRouteDirections;
-      if(!busRouteDirections) {
+    async function getBusRouteDirections(busRoute) {
+      var busRouteDirections = localStorage.getItem('lsBusDir'+busRoute);
+      if(busRouteDirections) {
+        busRouteDirections = JSON.parse(busRouteDirections);
+      }
+      else {
         var url = 'https://us-central1-cta-tracking-functions.cloudfunctions.net/'+
         'busGetBusRouteDirections/?busRoute='+busRoute;
-        return getRequest(url);
+        busRouteDirections = await getRequest(url);
+        localStorage.setItem('lsBusDir'+busRoute,JSON.stringify(busRouteDirections));
       }
       return busRouteDirections;
     }
@@ -201,38 +212,29 @@ jQuery(function($) {
       }
     }
 
-    function getRouteStops(route, direction) {
+    async function getBusRouteStops(route, direction) {
+      var busRouteStops = localStorage.getItem('lsBusStops'+route);
+      if(busRouteStops)
+        busRouteStops = JSON.parse(busRouteStops);
+      else {
+        var url = 'https://us-central1-cta-tracking-functions.cloudfunctions.net/'+
+        'busGetBusStops/?busRoute='+route+'&direction='+direction;
+        busRouteStops = await getRequest(url);
+        localStorage.setItem('lsBusStops'+route,JSON.stringify(busRouteStops));
+      }
+      return busRouteStops;
+    }
+
+    async function listRouteStops(route, direction) {
       $('#stops').empty();
       $('#stops').append(
         '<li class="list-subheader">Route '+ route +' - '+ direction+' -  Choose a stop</li>'
       );
-      var routeAndDirection = {
-        'route': route,
-        'direction': direction
-      };
-
-      $.when($.ajax({
-        "async": true,
-        "crossDomain": true,
-        "url": "https://us-central1-cta-tracking-functions.cloudfunctions.net/routeStops",
-        "method": "POST",
-        "headers": {
-          "content-type": "application/json"
-        },
-        "processData": false,
-        "data": JSON.stringify(routeAndDirection)
-      })).then(function(data) {
-        listRouteStops(data['bustime-response'].stops, route, direction);
-      }, function () {
-        console.log('Error');
-      });
-    }
-
-    function listRouteStops(stops, route, direction) {
-      for(var m=0;m<stops.length;m++) {
+      var stops = await getBusRouteStops(route,direction);
+      for(var m=0;m<stops.stops.length;m++) {
         $('#stops').append(
-          '<li><a href="#rt='+route+'#rt-name='+stops[m].stpnm+'#dir='+direction+'#stop-id='+stops[m].stpid+'">'
-          +stops[m].stpnm+
+          '<li><a href="#rt='+route+'#rt-name='+stops.stops[m].stpnm+'#dir='+direction+'#stop-id='+stops.stops[m].stpid+'">'
+          +stops.stops[m].stpnm+
           '</a></li>'
         );
       }
@@ -532,8 +534,7 @@ jQuery(function($) {
             'favorites': []
           };
         }
-      }
-      catch (e) {
+      } catch (e) {
         favoritesJSON = {
           'favorites': []
         };
