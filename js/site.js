@@ -56,12 +56,11 @@ jQuery(function($) {
             context.hasOwnProperty('dir') &&
             context.hasOwnProperty('stop')) {
             setScreenTo(FOLLOW);
-            getFollowTrainPredictions(context['run'], context['tl'], context['dir'], context['stop']);
-
+            listFollowTrain(context['run'], context['tl'], context['dir'], context['stop']);
           } else if(context.hasOwnProperty('dir') &&
                     context.hasOwnProperty('stop')) {
             setScreenTo(ARRIVALS);
-            getTrainPredictions(context['tl'],context['dir'],context['stop']);
+            listTrainPredictions(context['tl'],context['dir'],context['stop']);
             checkFavorite();
           } else {
             setScreenTo(DIRECT);
@@ -240,24 +239,11 @@ jQuery(function($) {
       }
     }
 
-    async function getTrainPredictions(lineIndex, directionIndex, stopIndex) {
-      var trainLines = await getTrainLines();
-      var line = trainLines.trainLines[lineIndex];
-      var direction = line.directions[directionIndex];
-      var stop = trainLines.stops[stopIndex];
-      var mapId = stop.mapId;
-      var stopId = stop.stopId;
-      var trDr = direction.trainDirection;
-      $('#arrivals').empty();
-      $('#arrivals').append('<li class="list-subheader">'+stop.stationName+' - '+stop.direction+' Bound</li>');
-      var trainMapId = {
-        'mapId': ''+mapId+''
-      };
+    async function getTrainPredictions(mapId) {
       var url = 'https://us-central1-cta-tracking-functions.cloudfunctions.net/'+
       'trainGetPredictions/?mapId='+mapId;
       var predictions = await getRequest(url);
-      listTrainPrediction(predictions,trDr,stopId,lineIndex,directionIndex,stopIndex);
-      console.log(predictions);
+      return predictions;
     }
 
     async function getBusPredictions(stopId) {
@@ -267,7 +253,17 @@ jQuery(function($) {
       return predictions;
     }
 
-    function listTrainPrediction(predictions, trDr, stopId, lineIndex, directionIndex, stopIndex) {
+    async function listTrainPredictions(lineIndex, directionIndex, stopIndex) {
+      var trainLines = await getTrainLines();
+      var line = trainLines.trainLines[lineIndex];
+      var direction = line.directions[directionIndex];
+      var stop = trainLines.stops[stopIndex];
+      var mapId = stop.mapId;
+      var stopId = stop.stopId;
+      var trDr = direction.trainDirection;
+      $('#arrivals').empty();
+      $('#arrivals').append('<li class="list-subheader">'+stop.stationName+' - '+stop.direction+' Bound</li>');
+      var predictions = await getTrainPredictions(mapId);
       if(predictions.hasOwnProperty('predictions')) {
         var count = 0;
         var currentDate = new Date();
@@ -337,34 +333,21 @@ jQuery(function($) {
       }
     }
 
-    async function getFollowTrainPredictions(runNumber, lineIndex, directionIndex, stopIndex) {
+    async function getFollowTrainPredictions(runNumber) {
+      var url = 'https://us-central1-cta-tracking-functions.cloudfunctions.net/'+
+      'trainGetFollow/?runnum='+runNumber;
+      var predictions = await getRequest(url);
+      return predictions;
+    }
+    
+    async function listFollowTrain(runNumber, lineIndex, directionIndex, stopIndex) {
       var trainLines = await getTrainLines();
       var line = trainLines.trainLines[lineIndex];
       var direction = line.directions[directionIndex];
       var stop = trainLines.stops[stopIndex];
       $('#follow').empty();
       $('#follow').append('<li class="list-subheader">Train Run #'+runNumber+' - '+line.lineName+' Line - '+direction.direction+'</li>');
-      var trainRunNumber = {
-        'runnum':''+runNumber+''
-      };
-      $.when($.ajax({
-        "async": true,
-        "crossDomain": true,
-        "url": "https://us-central1-cta-tracking-functions.cloudfunctions.net/trainFollow",
-        "method": "POST",
-        "headers": {
-          "content-type": "application/json"
-        },
-        "processData": false,
-        "data": JSON.stringify(trainRunNumber)
-      })).then(function(data) {
-        listFollowTrain(data, stop.mapId);
-      }, function () {
-        console.log('Error');
-      });
-    }
-    
-    function listFollowTrain(predictions, stopId) {
+      var predictions = await getFollowTrainPredictions(runNumber);
       console.log(predictions);
       if(predictions.hasOwnProperty('predictions')) {
         var count = 0;
@@ -372,7 +355,7 @@ jQuery(function($) {
         var futureDate = new Date();
         var followStop;
         for (var i = 0; i < predictions.predictions.length; i++) {
-          if(predictions.predictions[i].stopId == stopId) {
+          if(predictions.predictions[i].stopId == stop.mapId) {
             followStop = ' follow-stop';
           } else {
             followStop ='';
