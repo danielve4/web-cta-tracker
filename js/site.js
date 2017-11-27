@@ -25,16 +25,13 @@ jQuery(function($) {
         } else if(context.hasOwnProperty('rt')) {
           if(context.hasOwnProperty('dir') && !context.hasOwnProperty('stop-id')) {
             return BUS_STOPS;
-          }
-          else if(context.hasOwnProperty('rt-name') && context.hasOwnProperty('dir') &&
+          } else if(context.hasOwnProperty('rt-name') && context.hasOwnProperty('dir') &&
                   context.hasOwnProperty('stop-id')) {
             return BUS_ARRIVALS;
-          }
-          else if(context.hasOwnProperty('vid') && context.hasOwnProperty('stop-id') &&
+          } else if(context.hasOwnProperty('vid') && context.hasOwnProperty('stop-id') &&
                   context.hasOwnProperty('dir')) {
             return BUS_FOLLOW;
-          }
-          else 
+          } else 
             return BUS_DIRECT;
         } else if(context.hasOwnProperty('tl')) {
           if(context.hasOwnProperty('dir') && !context.hasOwnProperty('stop')) {
@@ -50,9 +47,7 @@ jQuery(function($) {
       }
     }
 
-    function decideScreen() {
-      var screen = getScreen();
-      var context = parseHash(location.hash);
+    function hideEverything() {
       $('#favorites').addClass('hidden');
       $('#routes').addClass('hidden');
       $("#train-lines").addClass('hidden');
@@ -61,6 +56,13 @@ jQuery(function($) {
       $('#arrivals').addClass('hidden');
       $('#app-bar-fav').addClass('hidden');
       $('#follow').addClass('hidden');
+      $('#refresh-button').addClass('hidden');
+    }
+
+    function decideScreen() {
+      var screen = getScreen();
+      var context = parseHash(location.hash);
+      hideEverything();
       switch(screen) {
         case FAV:
           $('#favorites').removeClass('hidden');
@@ -73,6 +75,7 @@ jQuery(function($) {
           $("#train-lines").removeClass('hidden');
           $('#routes-nav').addClass('active');
           $('#favorites-nav').removeClass('active');
+          $('#refresh-button').removeClass('hidden');
           listTrainLines();
           listBusRoutes();
           break;
@@ -86,6 +89,7 @@ jQuery(function($) {
           break;
         case BUS_STOPS:
           $('#stops').removeClass('hidden');
+          $('#refresh-button').removeClass('hidden');
           listRouteStops(context.rt,context['dir']);
           break;
         case TRAIN_STOPS:
@@ -95,21 +99,25 @@ jQuery(function($) {
         case BUS_ARRIVALS:
           $('#arrivals').removeClass('hidden');
           $('#app-bar-fav').removeClass('hidden');
+          $('#refresh-button').removeClass('hidden');
           listPredictions(context['rt'],context['rt-name'].replace(/%20/g, ' '),context['dir'],context['stop-id']);
           checkFavorite();
           break;
         case TRAIN_ARRIVALS:
           $('#arrivals').removeClass('hidden');
           $('#app-bar-fav').removeClass('hidden');
+          $('#refresh-button').removeClass('hidden');
           listTrainPredictions(context['tl'],context['dir'],context['stop']);
           checkFavorite();
           break;
         case BUS_FOLLOW:
           $('#follow').removeClass('hidden');
+          $('#refresh-button').removeClass('hidden');
           listFollowBus(context['rt'], context['vid'], context['stop-id'], context['dir']);
           break;
         case TRAIN_FOLLOW:
           $('#follow').removeClass('hidden');
+          $('#refresh-button').removeClass('hidden');
           listFollowTrain(context['run'], context['tl'], context['dir'], context['stop']);
           break;
         default:
@@ -660,6 +668,31 @@ jQuery(function($) {
 
     $(window).on('hashchange', function() {
       decideScreen();
+    });
+
+    $('#refresh-button').on('click', function(e) { //Handles the click/tap on the TOP button
+      e.preventDefault();
+      var screen = getScreen();
+      var context = parseHash(location.hash);
+      switch (screen) {
+        case BUS_ARRIVALS:
+          listPredictions(context['rt'],context['rt-name'].replace(/%20/g, ' '),context['dir'],context['stop-id']);
+          checkFavorite();
+          break;
+        case BUS_FOLLOW:
+          listFollowBus(context['rt'], context['vid'], context['stop-id'], context['dir']);
+          break;
+        case TRAIN_ARRIVALS:
+          listTrainPredictions(context['tl'],context['dir'],context['stop']);
+          checkFavorite();
+          break;
+        case TRAIN_FOLLOW:
+          listFollowTrain(context['run'], context['tl'], context['dir'], context['stop']);
+          break;
+        default:
+          console.log("Do nothing");
+          break;
+      }
     });
   });
 });
