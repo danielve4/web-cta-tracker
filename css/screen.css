@@ -77,12 +77,23 @@ button {
   border: 0;
 }
 
-#favorite-button {
+#favorite-button,
+#speaker-button {
   height: 2.77777778em; /*50px/18px*/
   width: 3.1111111em; /*56/18px*/
   background-size: 1.33333333em; /*24px/18px*/
   background-position: 50%;
   font-size: 100%;
+}
+
+#speaker-button.mute {
+  background: url("../icons/ic_volume_off_black_24px.svg") no-repeat;
+  background-position: 50%;
+}
+
+#speaker-button.speak {
+  background: url("../icons/ic_volume_up_black_24px.svg") no-repeat;
+  background-position: 50%;
 }
 
 #favorite-button.no-fill {
