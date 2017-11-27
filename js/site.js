@@ -1,72 +1,120 @@
 $.noConflict();
 jQuery(function($) {
   $(document).ready(function() {
-    var FAV='fav',ROUTES='routes',DIRECT='directions',STOPS='stops',
-      ARRIVALS='arrivals', FOLLOW='follow';
+    var FAV='fav',ROUTES='routes',BUS_DIRECT='busDirections', TRAIN_DIRECT='trainDirections',
+      BUS_STOPS='busStops', TRAIN_STOPS= 'trainStops', BUS_ARRIVALS='busArrivals', 
+      TRAIN_ARRIVALS='trainArrivals', BUS_FOLLOW='busFollow',TRAIN_FOLLOW='trainFollow';
     var LS_BUS_ROUTES = 'lsBusRoutes'; //Name of item in localStorage for bus stops
     var LS_TRAIN_LINES = 'lsTrainLines'; //Name of item in localStorage for train lines
     var lsFavorites = 'favorites'; //Name of item in localStorage for user favorites
     var favorites = [];
     decideScreen();
 
-    function decideScreen() {
+    function getScreen() {
       if(!location.hash) {
-        if(loadFavorites() > 0) {
-          setScreenTo(FAV);
-          listFavorites();
-        } else {
-          setScreenTo(ROUTES);
-        }
+        if(loadFavorites() > 0) 
+          return FAV;
+        else 
+          return ROUTES;
       } else {
         var context = parseHash(location.hash);
-        if(context.hasOwnProperty('favorites')) {
-          setScreenTo(FAV);
-          listFavorites();
-        } else  if(context.hasOwnProperty('routes')) {
-          setScreenTo(ROUTES);
+        if(context.hasOwnProperty('favorites')) 
+          return FAV;
+        else if(context.hasOwnProperty('routes')) {
+          return ROUTES;
         } else if(context.hasOwnProperty('rt')) {
-          if(context.hasOwnProperty('dir') &&
-            !context.hasOwnProperty('stop-id')) {
-            setScreenTo(STOPS);
-            listRouteStops(context.rt,context['dir']);
+          if(context.hasOwnProperty('dir') && !context.hasOwnProperty('stop-id')) {
+            return BUS_STOPS;
           }
-          else if(context.hasOwnProperty('rt-name') &&
-                  context.hasOwnProperty('dir') &&
+          else if(context.hasOwnProperty('rt-name') && context.hasOwnProperty('dir') &&
                   context.hasOwnProperty('stop-id')) {
-            setScreenTo(ARRIVALS);
-            listPredictions(context['rt'],context['rt-name'].replace(/%20/g, ' '),context['dir'],context['stop-id']);
-            checkFavorite();
+            return BUS_ARRIVALS;
           }
-          else if(context.hasOwnProperty('vid') &&
-                  context.hasOwnProperty('stop-id') &&
+          else if(context.hasOwnProperty('vid') && context.hasOwnProperty('stop-id') &&
                   context.hasOwnProperty('dir')) {
-            setScreenTo(FOLLOW);
-            listFollowBus(context['rt'], context['vid'], context['stop-id'], context['dir'])
+            return BUS_FOLLOW;
           }
-          else {
-            setScreenTo(DIRECT);
-            listRouteDirections(context.rt);
-          }
+          else 
+            return BUS_DIRECT;
         } else if(context.hasOwnProperty('tl')) {
-          if(context.hasOwnProperty('dir') &&
-                    !context.hasOwnProperty('stop')) {
-            setScreenTo(STOPS);
-            listLineStops(context['tl'], context['dir']);
-          } else if(context.hasOwnProperty('run') &&
-            context.hasOwnProperty('dir') &&
+          if(context.hasOwnProperty('dir') && !context.hasOwnProperty('stop')) {
+            return TRAIN_STOPS;
+          } else if(context.hasOwnProperty('run') && context.hasOwnProperty('dir') &&
             context.hasOwnProperty('stop')) {
-            setScreenTo(FOLLOW);
-            listFollowTrain(context['run'], context['tl'], context['dir'], context['stop']);
-          } else if(context.hasOwnProperty('dir') &&
-                    context.hasOwnProperty('stop')) {
-            setScreenTo(ARRIVALS);
-            listTrainPredictions(context['tl'],context['dir'],context['stop']);
-            checkFavorite();
-          } else {
-            setScreenTo(DIRECT);
-            listLineDirections(context['tl']);
-          }
+              return TRAIN_FOLLOW;
+          } else if(context.hasOwnProperty('dir') && context.hasOwnProperty('stop')) {
+              return TRAIN_ARRIVALS;
+          } else
+              return TRAIN_DIRECT;
         }
+      }
+    }
+
+    function decideScreen() {
+      var screen = getScreen();
+      var context = parseHash(location.hash);
+      $('#favorites').addClass('hidden');
+      $('#routes').addClass('hidden');
+      $("#train-lines").addClass('hidden');
+      $('#route-directions').addClass('hidden');
+      $('#stops').addClass('hidden');
+      $('#arrivals').addClass('hidden');
+      $('#app-bar-fav').addClass('hidden');
+      $('#follow').addClass('hidden');
+      switch(screen) {
+        case FAV:
+          $('#favorites').removeClass('hidden');
+          $('#favorites-nav').addClass('active');
+          $('#routes-nav').removeClass('active');
+          listFavorites();
+          break;
+        case ROUTES:
+          $('#routes').removeClass('hidden');
+          $("#train-lines").removeClass('hidden');
+          $('#routes-nav').addClass('active');
+          $('#favorites-nav').removeClass('active');
+          listTrainLines();
+          listBusRoutes();
+          break;
+        case BUS_DIRECT:
+          $('#route-directions').removeClass('hidden');
+          listRouteDirections(context.rt);
+          break;
+        case TRAIN_DIRECT:
+          $('#route-directions').removeClass('hidden');
+          listLineDirections(context['tl']);
+          break;
+        case BUS_STOPS:
+          $('#stops').removeClass('hidden');
+          listRouteStops(context.rt,context['dir']);
+          break;
+        case TRAIN_STOPS:
+          $('#stops').removeClass('hidden');
+          listLineStops(context['tl'], context['dir']);
+          break;
+        case BUS_ARRIVALS:
+          $('#arrivals').removeClass('hidden');
+          $('#app-bar-fav').removeClass('hidden');
+          listPredictions(context['rt'],context['rt-name'].replace(/%20/g, ' '),context['dir'],context['stop-id']);
+          checkFavorite();
+          break;
+        case TRAIN_ARRIVALS:
+          $('#arrivals').removeClass('hidden');
+          $('#app-bar-fav').removeClass('hidden');
+          listTrainPredictions(context['tl'],context['dir'],context['stop']);
+          checkFavorite();
+          break;
+        case BUS_FOLLOW:
+          $('#follow').removeClass('hidden');
+          listFollowBus(context['rt'], context['vid'], context['stop-id'], context['dir']);
+          break;
+        case TRAIN_FOLLOW:
+          $('#follow').removeClass('hidden');
+          listFollowTrain(context['run'], context['tl'], context['dir'], context['stop']);
+          break;
+        default:
+          console.log('Invalid Screen Type');
+          break;
       }
     }
 
@@ -584,48 +632,6 @@ jQuery(function($) {
         }
       }
       return -1;
-    }
-
-    function setScreenTo(type) {
-      $('#favorites').addClass('hidden');
-      $('#routes').addClass('hidden');
-      $("#train-lines").addClass('hidden');
-      $('#route-directions').addClass('hidden');
-      $('#stops').addClass('hidden');
-      $('#arrivals').addClass('hidden');
-      $('#app-bar-fav').addClass('hidden');
-      $('#follow').addClass('hidden');
-      switch(type) {
-        case FAV:
-          $('#favorites').removeClass('hidden');
-          $('#favorites-nav').addClass('active');
-          $('#routes-nav').removeClass('active');
-          break;
-        case ROUTES:
-          $('#routes').removeClass('hidden');
-          $("#train-lines").removeClass('hidden');
-          $('#routes-nav').addClass('active');
-          $('#favorites-nav').removeClass('active');
-          listTrainLines();
-          listBusRoutes();
-          break;
-        case DIRECT:
-          $('#route-directions').removeClass('hidden');
-          break;
-        case STOPS:
-          $('#stops').removeClass('hidden');
-          break;
-        case ARRIVALS:
-          $('#arrivals').removeClass('hidden');
-          $('#app-bar-fav').removeClass('hidden');
-          break;
-        case FOLLOW:
-          $('#follow').removeClass('hidden');
-          break;
-        default:
-          console.log('Invalid Screen Type');
-          break;
-      }
     }
 
     function parseHash(url) {
