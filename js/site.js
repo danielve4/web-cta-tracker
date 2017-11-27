@@ -192,14 +192,14 @@ jQuery(function($) {
     }
 
     async function listLineStops(lineIndex, directionIndex) {
+      $('#stops').empty();
       var trainLines = await getTrainLines();
       var line = trainLines.trainLines[lineIndex];
       var direction = line.directions[directionIndex];
-      var aStop;
-      $('#stops').empty();
       $('#stops').append(
         '<li class="list-subheader">'+line.lineName+' Line - '+ direction.direction+' -  Choose a stop</li>'
       );
+      var aStop;
       for(var i=0;i<trainLines.stops.length;i++) {
         aStop = trainLines.stops[i];
         if(aStop[line.lineName] && aStop.trDr == direction.trainDirection) {
@@ -254,30 +254,16 @@ jQuery(function($) {
         'mapId': ''+mapId+''
       };
       console.log(trainMapId);
-      $.when($.ajax({
-        "async": true,
-        "crossDomain": true,
-        "url": "https://us-central1-cta-tracking-functions.cloudfunctions.net/trainPredictions",
-        "method": "POST",
-        "headers": {
-          "content-type": "application/json"
-        },
-        "processData": false,
-        "data": JSON.stringify(trainMapId)
-      })).then(function(data, textStatus, request) {
-        listTrainPrediction(data, trDr, stopId, lineIndex, directionIndex, stopIndex);
-        console.log(data);
-      }, function (request, textStatus, errorThrown) {
-        console.log(request.getAllResponseHeaders());
-      });
+      var url = 'https://us-central1-cta-tracking-functions.cloudfunctions.net/'+
+      'trainGetPredictions/?mapId='+mapId;
+      var predictions = await getRequest(url);
+      listTrainPrediction(predictions,trDr,stopId,lineIndex,directionIndex,stopIndex);
+      console.log(predictions);
     }
 
     async function getBusPredictions(routeNumber, routeName, direction, stopId) {
       $('#arrivals').empty();
       $('#arrivals').append('<li class="list-subheader">'+routeName+' - '+ direction+'</li>');
-      var stop = {
-        'stopId': stopId
-      };
       var url = "https://us-central1-cta-tracking-functions.cloudfunctions.net/"+
       "busGetPredictions/?busStopId="+stopId
       var predictions = await getRequest(url);
