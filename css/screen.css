@@ -18,6 +18,10 @@ html {
   font-family: 'Product Sans',Roboto,"Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
+main {
+  padding-bottom: 3em; /*54px*/
+}
+
 h1 {
   font-size: 1.9531111em;  /*35.156px / 18px = 1.9531111em*/
   line-height: 1.251564456em; /*44px gridline at 35.156px | 44px / 35.156px = 1.251564456em*/
