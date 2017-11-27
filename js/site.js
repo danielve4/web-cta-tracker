@@ -34,14 +34,14 @@ jQuery(function($) {
                   context.hasOwnProperty('dir') &&
                   context.hasOwnProperty('stop-id')) {
             setScreenTo(ARRIVALS);
-            getBusPredictions(context['rt'],context['rt-name'].replace(/%20/g, ' '),context['dir'],context['stop-id']);
+            listPredictions(context['rt'],context['rt-name'].replace(/%20/g, ' '),context['dir'],context['stop-id']);
             checkFavorite();
           }
           else if(context.hasOwnProperty('vid') &&
                   context.hasOwnProperty('stop-id') &&
                   context.hasOwnProperty('dir')) {
             setScreenTo(FOLLOW);
-            getFollowBusPredictions(context['rt'], context['vid'], context['stop-id'], context['dir'])
+            listFollowBus(context['rt'], context['vid'], context['stop-id'], context['dir'])
           }
           else {
             setScreenTo(DIRECT);
@@ -253,7 +253,6 @@ jQuery(function($) {
       var trainMapId = {
         'mapId': ''+mapId+''
       };
-      console.log(trainMapId);
       var url = 'https://us-central1-cta-tracking-functions.cloudfunctions.net/'+
       'trainGetPredictions/?mapId='+mapId;
       var predictions = await getRequest(url);
@@ -261,13 +260,11 @@ jQuery(function($) {
       console.log(predictions);
     }
 
-    async function getBusPredictions(routeNumber, routeName, direction, stopId) {
-      $('#arrivals').empty();
-      $('#arrivals').append('<li class="list-subheader">'+routeName+' - '+ direction+'</li>');
+    async function getBusPredictions(stopId) {
       var url = "https://us-central1-cta-tracking-functions.cloudfunctions.net/"+
-      "busGetPredictions/?busStopId="+stopId
+      "busGetPredictions/?busStopId="+stopId;
       var predictions = await getRequest(url);
-      listPredictions(predictions, routeNumber);
+      return predictions;
     }
 
     function listTrainPrediction(predictions, trDr, stopId, lineIndex, directionIndex, stopIndex) {
@@ -295,14 +292,17 @@ jQuery(function($) {
         if(count === 0) {
           $('#arrivals').append(
             '<li class="prediction">' +
-              '<span>No arrival times</span>'+
+              '<span class="no-arrivals">No arrival times 😿</span>'+
             '</li>'
           );
         }
       }
     }
 
-    function listPredictions(predictions, routeNumber) {
+    async function listPredictions(routeNumber, routeName, direction, stopId) {
+      $('#arrivals').empty();
+      $('#arrivals').append('<li class="list-subheader">'+routeName+' - '+ direction+'</li>');
+      var predictions = await getBusPredictions(stopId);
       console.log(predictions);
       if(predictions.hasOwnProperty('prd')) {
         var currentDate = new Date();
@@ -332,7 +332,7 @@ jQuery(function($) {
         }
       } else if(predictions.hasOwnProperty('error')) {
         $('#arrivals').append(
-          '<li class="prediction">'+predictions.error[0].msg+'</li>'
+          '<li class="prediction"><span class="no-arrivals">'+predictions.error[0].msg+' 😿</span></li>'
         );
       }
     }
@@ -393,7 +393,7 @@ jQuery(function($) {
         if(count === 0) {
           $('#follow').append(
             '<li class="prediction">' +
-            '<span>No arrival times</span>'+
+            '<span class="no-arrivals">No arrival times 😿</span>'+
             '</li>'
           );
         }
@@ -406,30 +406,17 @@ jQuery(function($) {
       }
     }
 
-    function getFollowBusPredictions(routeNumber, vehicleId, stopId, direction) {
-      $('#follow').empty();
-      $('#follow').append('<li class="list-subheader">Bus #'+vehicleId+' - '+routeNumber+' - '+ direction+'</li>');
-      var busVehicleId = {
-        'vehicleId': vehicleId
-      };
-      $.when($.ajax({
-        "async": true,
-        "crossDomain": true,
-        "url": "https://us-central1-cta-tracking-functions.cloudfunctions.net/busFollow",
-        "method": "POST",
-        "headers": {
-          "content-type": "application/json"
-        },
-        "processData": false,
-        "data": JSON.stringify(busVehicleId)
-      })).then(function(data) {
-        listFollowBus(data, stopId);
-      }, function () {
-        console.log('Error');
-      });
+    async function getFollowBusPredictions(vehicleId) {
+      var url = 'https://us-central1-cta-tracking-functions.cloudfunctions.net/'+
+      'busGetFollow/?vehicleId='+vehicleId;
+      var predictions = await getRequest(url);
+      return predictions;
     }
 
-    function listFollowBus(predictions, stopId) {
+    async function listFollowBus(routeNumber, vehicleId, stopId, direction) {
+      $('#follow').empty();
+      $('#follow').append('<li class="list-subheader">Bus #'+vehicleId+' - '+routeNumber+' - '+ direction+'</li>');
+      var predictions = await getFollowBusPredictions(vehicleId);
       console.log(predictions);
       if(predictions.hasOwnProperty('prd')) {
         var currentDate = new Date();
@@ -464,7 +451,7 @@ jQuery(function($) {
         }
       } else if(predictions.hasOwnProperty('error')) {
         $('#follow').append(
-          '<li class="prediction">'+predictions.error[0].msg+'</li>'
+          '<li class="prediction"><span class="no-arrivals">'+predictions.error[0].msg+' 😿</span></li>'
         );
       }
     }
