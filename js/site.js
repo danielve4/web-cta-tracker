@@ -8,6 +8,8 @@ jQuery(function($) {
     var LS_TRAIN_LINES = 'lsTrainLines'; //Name of item in localStorage for train lines
     var lsFavorites = 'favorites'; //Name of item in localStorage for user favorites
     var favorites = [];
+    var speak = false;
+    var refreshInteval = 30;
     decideScreen();
 
     function getScreen() {
@@ -102,6 +104,9 @@ jQuery(function($) {
           $('#refresh-button').removeClass('hidden');
           listPredictions(context['rt'],context['rt-name'].replace(/%20/g, ' '),context['dir'],context['stop-id']);
           checkFavorite();
+          var interval = setInterval(function(){
+            refreshScreen();
+          },(1000*refreshInteval));
           break;
         case TRAIN_ARRIVALS:
           $('#arrivals').removeClass('hidden');
@@ -109,6 +114,9 @@ jQuery(function($) {
           $('#refresh-button').removeClass('hidden');
           listTrainPredictions(context['tl'],context['dir'],context['stop']);
           checkFavorite();
+          var interval = setInterval(function(){
+            refreshScreen();
+          },(1000*refreshInteval));
           break;
         case BUS_FOLLOW:
           $('#follow').removeClass('hidden');
@@ -320,6 +328,7 @@ jQuery(function($) {
       $('#arrivals').empty();
       $('#arrivals').append('<li class="list-subheader">'+stop.stationName+' - '+stop.direction+' Bound</li>');
       var predictions = await getTrainPredictions(mapId);
+      speakArrivalTimes('train', predictions,stopId,trDr);
       if(predictions.hasOwnProperty('predictions')) {
         var count = 0;
         var currentDate = new Date();
@@ -355,6 +364,7 @@ jQuery(function($) {
       $('#arrivals').empty();
       $('#arrivals').append('<li class="list-subheader">'+routeName+' - '+ direction+'</li>');
       var predictions = await getBusPredictions(stopId);
+      speakArrivalTimes('bus',predictions);
       console.log(predictions);
       if(predictions.hasOwnProperty('prd')) {
         var currentDate = new Date();
@@ -670,8 +680,63 @@ jQuery(function($) {
       decideScreen();
     });
 
+    $('#speaker-button').on('click', function() {
+      toggleSpeaker();
+    });
+
+    function toggleSpeaker() {
+      speak = !speak;
+      if(speak) {
+        $('#speaker-button').removeClass('mute');
+        $('#speaker-button').addClass('speak');
+      } else {
+        $('#speaker-button').removeClass('speak');
+        $('#speaker-button').addClass('mute');
+      }
+    }
+
+    function speakArrivalTimes(vehicleType, arrivals,stopId,trDr) {
+      if(speak) {
+        var utterance = vehicleType+' coming in ';
+        if(vehicleType=='bus') {
+          var allPredictions = arrivals['prd'];
+          if(allPredictions.length == 1) {
+            utterance += allPredictions[0].prdctdn;
+          } else {
+            for(var i=0;i<allPredictions.length-1;i++) {
+              utterance += allPredictions[i].prdctdn + ", ";
+            }
+            utterance += "and " + allPredictions[allPredictions.length-1].prdctdn;
+          }
+          utterance += " minutes.";
+        } else {
+          var allPredictions = arrivals['predictions'];
+          if(allPredictions.length == 1 && allPredictions[0].stopId == stopId || allPredictions[0].trDr == trDr) {
+            utterance += allPredictions[0].eta;
+          } else {
+            for(var i=0;i<allPredictions.length-1;i++) {
+              if (allPredictions[i].stopId == stopId || allPredictions[i].trDr == trDr) {
+                utterance += allPredictions[i].eta + ", ";
+              }
+            }
+            if (allPredictions[i].stopId == stopId || allPredictions[i].trDr == trDr) {
+              utterance += "and " + allPredictions[allPredictions.length-1].eta;
+            }
+          }
+          utterance += " minutes.";
+        }
+        var msg = new SpeechSynthesisUtterance(utterance);
+        msg.voice = speechSynthesis.getVoices()[48];
+        speechSynthesis.speak(msg);
+      }
+    }
+
     $('#refresh-button').on('click', function(e) { //Handles the click/tap on the TOP button
       e.preventDefault();
+      refreshScreen();
+    });
+
+    function refreshScreen() {
       var screen = getScreen();
       var context = parseHash(location.hash);
       switch (screen) {
@@ -693,6 +758,6 @@ jQuery(function($) {
           console.log("Do nothing");
           break;
       }
-    });
+    }
   });
 });
