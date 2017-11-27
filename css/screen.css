@@ -15,7 +15,7 @@ html {
   line-height: 1.222em;   /*22px is 1 gridline at 18px | 22px / 18px = 1.222em*/
   background-color: #303030;
   color: #FFFFFF;
-  font-family: Roboto,"Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family: 'Product Sans',Roboto,"Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
 h1 {
