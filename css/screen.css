@@ -7,7 +7,7 @@ a,abbr,acronym,address,applet,article,aside,audio,b,big,blockquote,body,canvas,c
 /* stylelint-enable */
 
 /*
-http://www.modularscale.com/?22&px&1.125&web&text
+http://www.modularscale.com/?18&px&1.125
 */
 
 html {
@@ -239,6 +239,10 @@ nav {
   position: absolute;
   left: 3.11111111em; /*45px + 11px = 56px = 3.11111em @ 18px*/
   color: #ffeb3b;
+}
+
+.no-arrivals {
+  font-size: 1.266em; /*22.781px*/
 }
 
 .arrival-clock {
