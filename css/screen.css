@@ -33,6 +33,7 @@ a {
 
 .hidden {
   display: none;
+  visibility: hidden;
 }
 
 nav {
@@ -65,7 +66,12 @@ nav {
   float: right;
 }
 
-#favorite-button {
+button {
+  outline: none;
+}
+
+#favorite-button,
+#refresh-button {
   font-family: inherit;
   height: 2.77777778em; /*50px/18px*/
   width: 3.1111111em; /*56/18px*/
@@ -84,6 +90,19 @@ nav {
 #favorite-button.fill {
   background: url("../icons/ic_favorite_black_24px.svg") no-repeat;
   background-position: 50%;
+}
+
+#refresh-button {
+  position: fixed;
+  right: 2%;
+  bottom: 2%;
+  border-radius: 50%; /*Circular shape*/
+  background: url("../icons/ic_refresh_black_24px.svg") no-repeat;
+  background-color: #f50057;
+  background-position: 50%;
+  display: block;
+  text-align: center;
+  text-decoration: none;
 }
 
 .toolbar li {
