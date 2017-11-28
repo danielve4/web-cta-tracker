@@ -757,6 +757,16 @@ jQuery(function($) {
         case TRAIN_FOLLOW:
           listFollowTrain(context['run'], context['tl'], context['dir'], context['stop']);
           break;
+        case ROUTES:
+          localStorage.removeItem(LS_BUS_ROUTES);
+          localStorage.removeItem(LS_TRAIN_LINES);
+          listTrainLines();
+          listBusRoutes();
+          break;
+        case BUS_STOPS:
+          localStorage.removeItem('lsBusStops'+context.rt+context['dir']);
+          listRouteStops(context.rt,context['dir']);
+          break;
         default:
           console.log("Do nothing");
           break;
