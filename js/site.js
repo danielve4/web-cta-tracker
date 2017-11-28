@@ -107,9 +107,7 @@ jQuery(function($) {
           $('#refresh-button').removeClass('hidden');
           listPredictions(context['rt'],context['rt-name'].replace(/%20/g, ' '),context['dir'],context['stop-id']);
           checkFavorite();
-          intervalTimer = setInterval(function(){
-            refreshScreen();
-          },(1000*refreshInteval));
+          intervalTimer = setInterval(function(){refreshScreen();},(1000*refreshInteval));
           break;
         case TRAIN_ARRIVALS:
           $('#arrivals').removeClass('hidden');
@@ -117,9 +115,7 @@ jQuery(function($) {
           $('#refresh-button').removeClass('hidden');
           listTrainPredictions(context['tl'],context['dir'],context['stop']);
           checkFavorite();
-          intervalTimer = setInterval(function(){
-            refreshScreen();
-          },(1000*refreshInteval));
+          intervalTimer = setInterval(function(){refreshScreen();},(1000*refreshInteval));
           break;
         case BUS_FOLLOW:
           $('#follow').removeClass('hidden');
