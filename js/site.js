@@ -9,6 +9,7 @@ jQuery(function($) {
     var lsFavorites = 'favorites'; //Name of item in localStorage for user favorites
     var favorites = [];
     var speak = false;
+    var intervalTimer;
     var refreshInteval = 30;
     decideScreen();
 
@@ -62,6 +63,8 @@ jQuery(function($) {
     }
 
     function decideScreen() {
+      if(intervalTimer)
+        clearInterval(intervalTimer);
       var screen = getScreen();
       var context = parseHash(location.hash);
       hideEverything();
@@ -104,7 +107,7 @@ jQuery(function($) {
           $('#refresh-button').removeClass('hidden');
           listPredictions(context['rt'],context['rt-name'].replace(/%20/g, ' '),context['dir'],context['stop-id']);
           checkFavorite();
-          var interval = setInterval(function(){
+          intervalTimer = setInterval(function(){
             refreshScreen();
           },(1000*refreshInteval));
           break;
@@ -114,7 +117,7 @@ jQuery(function($) {
           $('#refresh-button').removeClass('hidden');
           listTrainPredictions(context['tl'],context['dir'],context['stop']);
           checkFavorite();
-          var interval = setInterval(function(){
+          intervalTimer = setInterval(function(){
             refreshScreen();
           },(1000*refreshInteval));
           break;
