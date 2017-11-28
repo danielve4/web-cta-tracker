@@ -736,36 +736,38 @@ jQuery(function($) {
     });
 
     function refreshScreen() {
-      var screen = getScreen();
-      var context = parseHash(location.hash);
-      switch (screen) {
-        case BUS_ARRIVALS:
-          listPredictions(context['rt'],context['rt-name'].replace(/%20/g, ' '),context['dir'],context['stop-id']);
-          checkFavorite();
-          break;
-        case BUS_FOLLOW:
-          listFollowBus(context['rt'], context['vid'], context['stop-id'], context['dir']);
-          break;
-        case TRAIN_ARRIVALS:
-          listTrainPredictions(context['tl'],context['dir'],context['stop']);
-          checkFavorite();
-          break;
-        case TRAIN_FOLLOW:
-          listFollowTrain(context['run'], context['tl'], context['dir'], context['stop']);
-          break;
-        case ROUTES:
-          localStorage.removeItem(LS_BUS_ROUTES);
-          localStorage.removeItem(LS_TRAIN_LINES);
-          listTrainLines();
-          listBusRoutes();
-          break;
-        case BUS_STOPS:
-          localStorage.removeItem('lsBusStops'+context.rt+context['dir']);
-          listRouteStops(context.rt,context['dir']);
-          break;
-        default:
-          console.log("Do nothing");
-          break;
+      if(!document.hidden) {
+        var screen = getScreen();
+        var context = parseHash(location.hash);
+        switch (screen) {
+          case BUS_ARRIVALS:
+            listPredictions(context['rt'],context['rt-name'].replace(/%20/g, ' '),context['dir'],context['stop-id']);
+            checkFavorite();
+            break;
+          case BUS_FOLLOW:
+            listFollowBus(context['rt'], context['vid'], context['stop-id'], context['dir']);
+            break;
+          case TRAIN_ARRIVALS:
+            listTrainPredictions(context['tl'],context['dir'],context['stop']);
+            checkFavorite();
+            break;
+          case TRAIN_FOLLOW:
+            listFollowTrain(context['run'], context['tl'], context['dir'], context['stop']);
+            break;
+          case ROUTES:
+            localStorage.removeItem(LS_BUS_ROUTES);
+            localStorage.removeItem(LS_TRAIN_LINES);
+            listTrainLines();
+            listBusRoutes();
+            break;
+          case BUS_STOPS:
+            localStorage.removeItem('lsBusStops'+context.rt+context['dir']);
+            listRouteStops(context.rt,context['dir']);
+            break;
+          default:
+            console.log("Do nothing");
+            break;
+        }
       }
     }
   });
