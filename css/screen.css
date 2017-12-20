@@ -18,6 +18,10 @@ html {
   font-family: 'Product Sans',Roboto,"Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
+main {
+  padding-bottom: 3em; /*54px*/
+}
+
 h1 {
   font-size: 1.9531111em;  /*35.156px / 18px = 1.9531111em*/
   line-height: 1.251564456em; /*44px gridline at 35.156px | 44px / 35.156px = 1.251564456em*/
@@ -33,6 +37,7 @@ a {
 
 .hidden {
   display: none;
+  visibility: hidden;
 }
 
 nav {
@@ -40,7 +45,7 @@ nav {
   width: 100%;
   top: 0;
   left: 0;
-  box-shadow: 0 0.11111em 0.27778em rgba(0,0,0,0.26); /*The shadow of the navigation bar 4px down, 8px blur radius*/
+  box-shadow: 0 0.22222em 0.44444em rgba(0,0,0,0.26); /*The shadow of the navigation bar 4px down, 8px blur radius*/
   background: #212121;
   height: 5.77777777778em; /* height of the navigation (56+48=104) 104px/18px = 5.77777777778em*/
 }
@@ -65,15 +70,30 @@ nav {
   float: right;
 }
 
-#favorite-button {
+button {
   font-family: inherit;
+  outline: none;
+  padding: 0;
+  border: 0;
+}
+
+#favorite-button,
+#speaker-button {
   height: 2.77777778em; /*50px/18px*/
   width: 3.1111111em; /*56/18px*/
   background-size: 1.33333333em; /*24px/18px*/
   background-position: 50%;
   font-size: 100%;
-  padding: 0;
-  border: 0;
+}
+
+#speaker-button.mute {
+  background: url("../icons/ic_volume_off_black_24px.svg") no-repeat;
+  background-position: 50%;
+}
+
+#speaker-button.speak {
+  background: url("../icons/ic_volume_up_black_24px.svg") no-repeat;
+  background-position: 50%;
 }
 
 #favorite-button.no-fill {
@@ -84,6 +104,23 @@ nav {
 #favorite-button.fill {
   background: url("../icons/ic_favorite_black_24px.svg") no-repeat;
   background-position: 50%;
+}
+
+#refresh-button {
+  position: fixed;
+  height: 4.54545454em; /*50px/18px*/
+  width: 4.54545454em; /*56/18px*/
+  right: 2%;
+  bottom: 2%;
+  border-radius: 50%; /*Circular shape*/
+  background-position: 50%;
+  background: url("../icons/ic_refresh_black_24px.svg") no-repeat;
+  background-color: #f50057;
+  background-position: 50%;
+  display: block;
+  text-align: center;
+  text-decoration: none;
+  box-shadow: 0 0.363636em 0.727272em rgba(0,0,0,0.26); /*The shadow of the navigation bar 4px down, 8px blur radius*/
 }
 
 .toolbar li {

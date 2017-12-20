@@ -1,72 +1,135 @@
 $.noConflict();
 jQuery(function($) {
   $(document).ready(function() {
-    var FAV='fav',ROUTES='routes',DIRECT='directions',STOPS='stops',
-      ARRIVALS='arrivals', FOLLOW='follow';
+    var FAV='fav',ROUTES='routes',BUS_DIRECT='busDirections', TRAIN_DIRECT='trainDirections',
+      BUS_STOPS='busStops', TRAIN_STOPS= 'trainStops', BUS_ARRIVALS='busArrivals', 
+      TRAIN_ARRIVALS='trainArrivals', BUS_FOLLOW='busFollow',TRAIN_FOLLOW='trainFollow';
     var LS_BUS_ROUTES = 'lsBusRoutes'; //Name of item in localStorage for bus stops
     var LS_TRAIN_LINES = 'lsTrainLines'; //Name of item in localStorage for train lines
     var lsFavorites = 'favorites'; //Name of item in localStorage for user favorites
     var favorites = [];
+    var speak = false;
+    var intervalTimer;
+    var refreshInteval = 30;
     decideScreen();
 
-    function decideScreen() {
+    function getScreen() {
       if(!location.hash) {
-        if(loadFavorites() > 0) {
-          setScreenTo(FAV);
-          listFavorites();
-        } else {
-          setScreenTo(ROUTES);
-        }
+        if(loadFavorites() > 0) 
+          return FAV;
+        else 
+          return ROUTES;
       } else {
         var context = parseHash(location.hash);
-        if(context.hasOwnProperty('favorites')) {
-          setScreenTo(FAV);
-          listFavorites();
-        } else  if(context.hasOwnProperty('routes')) {
-          setScreenTo(ROUTES);
+        if(context.hasOwnProperty('favorites')) 
+          return FAV;
+        else if(context.hasOwnProperty('routes')) {
+          return ROUTES;
         } else if(context.hasOwnProperty('rt')) {
-          if(context.hasOwnProperty('dir') &&
-            !context.hasOwnProperty('stop-id')) {
-            setScreenTo(STOPS);
-            listRouteStops(context.rt,context['dir']);
-          }
-          else if(context.hasOwnProperty('rt-name') &&
-                  context.hasOwnProperty('dir') &&
+          if(context.hasOwnProperty('dir') && !context.hasOwnProperty('stop-id')) {
+            return BUS_STOPS;
+          } else if(context.hasOwnProperty('rt-name') && context.hasOwnProperty('dir') &&
                   context.hasOwnProperty('stop-id')) {
-            setScreenTo(ARRIVALS);
-            listPredictions(context['rt'],context['rt-name'].replace(/%20/g, ' '),context['dir'],context['stop-id']);
-            checkFavorite();
-          }
-          else if(context.hasOwnProperty('vid') &&
-                  context.hasOwnProperty('stop-id') &&
+            return BUS_ARRIVALS;
+          } else if(context.hasOwnProperty('vid') && context.hasOwnProperty('stop-id') &&
                   context.hasOwnProperty('dir')) {
-            setScreenTo(FOLLOW);
-            listFollowBus(context['rt'], context['vid'], context['stop-id'], context['dir'])
-          }
-          else {
-            setScreenTo(DIRECT);
-            listRouteDirections(context.rt);
-          }
+            return BUS_FOLLOW;
+          } else 
+            return BUS_DIRECT;
         } else if(context.hasOwnProperty('tl')) {
-          if(context.hasOwnProperty('dir') &&
-                    !context.hasOwnProperty('stop')) {
-            setScreenTo(STOPS);
-            listLineStops(context['tl'], context['dir']);
-          } else if(context.hasOwnProperty('run') &&
-            context.hasOwnProperty('dir') &&
+          if(context.hasOwnProperty('dir') && !context.hasOwnProperty('stop')) {
+            return TRAIN_STOPS;
+          } else if(context.hasOwnProperty('run') && context.hasOwnProperty('dir') &&
             context.hasOwnProperty('stop')) {
-            setScreenTo(FOLLOW);
-            listFollowTrain(context['run'], context['tl'], context['dir'], context['stop']);
-          } else if(context.hasOwnProperty('dir') &&
-                    context.hasOwnProperty('stop')) {
-            setScreenTo(ARRIVALS);
-            listTrainPredictions(context['tl'],context['dir'],context['stop']);
-            checkFavorite();
-          } else {
-            setScreenTo(DIRECT);
-            listLineDirections(context['tl']);
-          }
+              return TRAIN_FOLLOW;
+          } else if(context.hasOwnProperty('dir') && context.hasOwnProperty('stop')) {
+              return TRAIN_ARRIVALS;
+          } else
+              return TRAIN_DIRECT;
         }
+      }
+    }
+
+    function hideEverything() {
+      $('#favorites').addClass('hidden');
+      $('#routes').addClass('hidden');
+      $("#train-lines").addClass('hidden');
+      $('#route-directions').addClass('hidden');
+      $('#stops').addClass('hidden');
+      $('#arrivals').addClass('hidden');
+      $('#app-bar-fav').addClass('hidden');
+      $('#follow').addClass('hidden');
+      $('#refresh-button').addClass('hidden');
+    }
+
+    function decideScreen() {
+      if(intervalTimer)
+        clearInterval(intervalTimer);
+      var screen = getScreen();
+      var context = parseHash(location.hash);
+      hideEverything();
+      switch(screen) {
+        case FAV:
+          $('#favorites').removeClass('hidden');
+          $('#favorites-nav').addClass('active');
+          $('#routes-nav').removeClass('active');
+          listFavorites();
+          break;
+        case ROUTES:
+          $('#routes').removeClass('hidden');
+          $("#train-lines").removeClass('hidden');
+          $('#routes-nav').addClass('active');
+          $('#favorites-nav').removeClass('active');
+          $('#refresh-button').removeClass('hidden');
+          listTrainLines();
+          listBusRoutes();
+          break;
+        case BUS_DIRECT:
+          $('#route-directions').removeClass('hidden');
+          listRouteDirections(context.rt);
+          break;
+        case TRAIN_DIRECT:
+          $('#route-directions').removeClass('hidden');
+          listLineDirections(context['tl']);
+          break;
+        case BUS_STOPS:
+          $('#stops').removeClass('hidden');
+          $('#refresh-button').removeClass('hidden');
+          listRouteStops(context.rt,context['dir']);
+          break;
+        case TRAIN_STOPS:
+          $('#stops').removeClass('hidden');
+          listLineStops(context['tl'], context['dir']);
+          break;
+        case BUS_ARRIVALS:
+          $('#arrivals').removeClass('hidden');
+          $('#app-bar-fav').removeClass('hidden');
+          $('#refresh-button').removeClass('hidden');
+          listPredictions(context['rt'],context['rt-name'].replace(/%20/g, ' '),context['dir'],context['stop-id']);
+          checkFavorite();
+          intervalTimer = setInterval(function(){refreshScreen();},(1000*refreshInteval));
+          break;
+        case TRAIN_ARRIVALS:
+          $('#arrivals').removeClass('hidden');
+          $('#app-bar-fav').removeClass('hidden');
+          $('#refresh-button').removeClass('hidden');
+          listTrainPredictions(context['tl'],context['dir'],context['stop']);
+          checkFavorite();
+          intervalTimer = setInterval(function(){refreshScreen();},(1000*refreshInteval));
+          break;
+        case BUS_FOLLOW:
+          $('#follow').removeClass('hidden');
+          $('#refresh-button').removeClass('hidden');
+          listFollowBus(context['rt'], context['vid'], context['stop-id'], context['dir']);
+          break;
+        case TRAIN_FOLLOW:
+          $('#follow').removeClass('hidden');
+          $('#refresh-button').removeClass('hidden');
+          listFollowTrain(context['run'], context['tl'], context['dir'], context['stop']);
+          break;
+        default:
+          console.log('Invalid Screen Type');
+          break;
       }
     }
 
@@ -264,6 +327,7 @@ jQuery(function($) {
       $('#arrivals').empty();
       $('#arrivals').append('<li class="list-subheader">'+stop.stationName+' - '+stop.direction+' Bound</li>');
       var predictions = await getTrainPredictions(mapId);
+      speakArrivalTimes('train', predictions,stopId,trDr);
       if(predictions.hasOwnProperty('predictions')) {
         var count = 0;
         var currentDate = new Date();
@@ -299,6 +363,7 @@ jQuery(function($) {
       $('#arrivals').empty();
       $('#arrivals').append('<li class="list-subheader">'+routeName+' - '+ direction+'</li>');
       var predictions = await getBusPredictions(stopId);
+      speakArrivalTimes('bus',predictions);
       console.log(predictions);
       if(predictions.hasOwnProperty('prd')) {
         var currentDate = new Date();
@@ -586,48 +651,6 @@ jQuery(function($) {
       return -1;
     }
 
-    function setScreenTo(type) {
-      $('#favorites').addClass('hidden');
-      $('#routes').addClass('hidden');
-      $("#train-lines").addClass('hidden');
-      $('#route-directions').addClass('hidden');
-      $('#stops').addClass('hidden');
-      $('#arrivals').addClass('hidden');
-      $('#app-bar-fav').addClass('hidden');
-      $('#follow').addClass('hidden');
-      switch(type) {
-        case FAV:
-          $('#favorites').removeClass('hidden');
-          $('#favorites-nav').addClass('active');
-          $('#routes-nav').removeClass('active');
-          break;
-        case ROUTES:
-          $('#routes').removeClass('hidden');
-          $("#train-lines").removeClass('hidden');
-          $('#routes-nav').addClass('active');
-          $('#favorites-nav').removeClass('active');
-          listTrainLines();
-          listBusRoutes();
-          break;
-        case DIRECT:
-          $('#route-directions').removeClass('hidden');
-          break;
-        case STOPS:
-          $('#stops').removeClass('hidden');
-          break;
-        case ARRIVALS:
-          $('#arrivals').removeClass('hidden');
-          $('#app-bar-fav').removeClass('hidden');
-          break;
-        case FOLLOW:
-          $('#follow').removeClass('hidden');
-          break;
-        default:
-          console.log('Invalid Screen Type');
-          break;
-      }
-    }
-
     function parseHash(url) {
       var params = (url.substr(1)).split('#');
       var pair;
@@ -655,5 +678,97 @@ jQuery(function($) {
     $(window).on('hashchange', function() {
       decideScreen();
     });
+
+    $('#speaker-button').on('click', function() {
+      toggleSpeaker();
+    });
+
+    function toggleSpeaker() {
+      speak = !speak;
+      if(speak) {
+        $('#speaker-button').removeClass('mute');
+        $('#speaker-button').addClass('speak');
+      } else {
+        $('#speaker-button').removeClass('speak');
+        $('#speaker-button').addClass('mute');
+      }
+    }
+
+    function speakArrivalTimes(vehicleType, arrivals,stopId,trDr) {
+      if(speak) {
+        var utterance = vehicleType+' coming in ';
+        if(vehicleType=='bus') {
+          var allPredictions = arrivals['prd'];
+          if(allPredictions.length == 1) {
+            utterance += allPredictions[0].prdctdn;
+          } else {
+            for(var i=0;i<allPredictions.length-1;i++) {
+              utterance += allPredictions[i].prdctdn + ", ";
+            }
+            utterance += "and " + allPredictions[allPredictions.length-1].prdctdn;
+          }
+          utterance += " minutes.";
+        } else {
+          var allPredictions = arrivals['predictions'];
+          if(allPredictions.length == 1 && allPredictions[0].stopId == stopId || allPredictions[0].trDr == trDr) {
+            utterance += allPredictions[0].eta;
+          } else {
+            for(var i=0;i<allPredictions.length-1;i++) {
+              if (allPredictions[i].stopId == stopId || allPredictions[i].trDr == trDr) {
+                utterance += allPredictions[i].eta + ", ";
+              }
+            }
+            if (allPredictions[i].stopId == stopId || allPredictions[i].trDr == trDr) {
+              utterance += "and " + allPredictions[allPredictions.length-1].eta;
+            }
+          }
+          utterance += " minutes.";
+        }
+        var msg = new SpeechSynthesisUtterance(utterance);
+        msg.voice = speechSynthesis.getVoices()[48];
+        speechSynthesis.speak(msg);
+      }
+    }
+
+    $('#refresh-button').on('click', function(e) { //Handles the click/tap on the TOP button
+      e.preventDefault();
+      refreshScreen();
+    });
+
+    function refreshScreen() {
+      if(!document.hidden) {
+        var screen = getScreen();
+        var context = parseHash(location.hash);
+        switch (screen) {
+          case BUS_ARRIVALS:
+            listPredictions(context['rt'],context['rt-name'].replace(/%20/g, ' '),context['dir'],context['stop-id']);
+            checkFavorite();
+            break;
+          case BUS_FOLLOW:
+            listFollowBus(context['rt'], context['vid'], context['stop-id'], context['dir']);
+            break;
+          case TRAIN_ARRIVALS:
+            listTrainPredictions(context['tl'],context['dir'],context['stop']);
+            checkFavorite();
+            break;
+          case TRAIN_FOLLOW:
+            listFollowTrain(context['run'], context['tl'], context['dir'], context['stop']);
+            break;
+          case ROUTES:
+            localStorage.removeItem(LS_BUS_ROUTES);
+            localStorage.removeItem(LS_TRAIN_LINES);
+            listTrainLines();
+            listBusRoutes();
+            break;
+          case BUS_STOPS:
+            localStorage.removeItem('lsBusStops'+context.rt+context['dir']);
+            listRouteStops(context.rt,context['dir']);
+            break;
+          default:
+            console.log("Do nothing");
+            break;
+        }
+      }
+    }
   });
 });
