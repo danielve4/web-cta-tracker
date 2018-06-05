@@ -1,0 +1,24 @@
+{
+  "short_name": "'L' Bus",
+  "name": "'L' Bus CTA Tracker",
+  "icons": [
+    {
+      "src": "./icons/favicon.ico",
+      "type": "image/ico",
+      "sizes": "48x48"
+    },
+    {
+      "src": "./icons/favicon-96x96.png",
+      "type": "image/png",
+      "sizes": "96x96"
+    },
+    {
+      "src": "./icons/favicon-196x196.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    }
+  ],
+  "start_url": "index.html",
+  "background_color": "#000000",
+  "theme_color": "#000000"
+}
