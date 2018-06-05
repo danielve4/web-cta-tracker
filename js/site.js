@@ -14,13 +14,13 @@ jQuery(function($) {
     decideScreen();
 
     function getScreen() {
-      if(!location.hash) {
+      if(!location.search) {
         if(loadFavorites() > 0) 
           return FAV;
         else 
           return ROUTES;
       } else {
-        var context = parseHash(location.hash);
+        var context = parseSearch(location.search);
         if(context.hasOwnProperty('favorites')) 
           return FAV;
         else if(context.hasOwnProperty('routes')) {
@@ -66,7 +66,7 @@ jQuery(function($) {
       if(intervalTimer)
         clearInterval(intervalTimer);
       var screen = getScreen();
-      var context = parseHash(location.hash);
+      var context = parseSearch(location.search);
       hideEverything();
       switch(screen) {
         case FAV:
@@ -186,7 +186,7 @@ jQuery(function($) {
         line = trainLines.trainLines[i];
         $('#train-lines').append(
           '<li>' +
-            '<a href="#tl='+i+'">'+
+            '<a href="?tl='+i+'">'+
               '<span class="line-color '+line.lineName.substring(0,3)+'"></span>'+
               '<span class="route-name">' +line.lineName+ ' Line</span></a>'+
           '</li>'
@@ -202,7 +202,7 @@ jQuery(function($) {
         route = busRoutes.routes[i];
         $('#routes').append(
           '<li>' +
-            '<a href="#rt='+route.rt+'"id="'+route.rt+'">' +
+            '<a href="?rt='+route.rt+'"id="'+route.rt+'">' +
               '<span class="route-number">'+route.rt+ '</span>' +
               '<span class="route-name">' +route.rtnm+ '</span>' +
             '</a>' +
@@ -218,7 +218,7 @@ jQuery(function($) {
       $('#route-directions').append('<li class="list-subheader">'+line.lineName+' Line - Choose a direction</li>');
       for(var i=0;i<line.directions.length;i++) {
         $('#route-directions').append(
-          '<li><a href="#tl='+lineIndex+'#dir='+i+'">'
+          '<li><a href="?tl='+lineIndex+'?dir='+i+'">'
           +'To '+line.directions[i].direction+
           '</a></li>'
         );
@@ -246,7 +246,7 @@ jQuery(function($) {
       $('#route-directions').append('<li class="list-subheader">Route '+rNumber+' - Choose a direction</li>');
       for(var j=0;j<busRouteDirections.directions.length;j++) {
         $('#route-directions').append(
-          '<li><a href="#rt='+rNumber+'#dir='+busRouteDirections.directions[j].dir+'">'
+          '<li><a href="?rt='+rNumber+'?dir='+busRouteDirections.directions[j].dir+'">'
           +busRouteDirections.directions[j].dir+
           '</a></li>'
         );
@@ -266,7 +266,7 @@ jQuery(function($) {
         aStop = trainLines.stops[i];
         if(aStop[line.lineName] && aStop.trDr == direction.trainDirection) {
           $('#stops').append(
-            '<li><a href="#tl='+lineIndex+'#dir='+directionIndex+'#stop='+i+'">'
+            '<li><a href="?tl='+lineIndex+'?dir='+directionIndex+'?stop='+i+'">'
             +aStop.stationName+
             '</a></li>'
           );
@@ -295,7 +295,7 @@ jQuery(function($) {
       var stops = await getBusRouteStops(route,direction);
       for(var m=0;m<stops.stops.length;m++) {
         $('#stops').append(
-          '<li><a href="#rt='+route+'#rt-name='+stops.stops[m].stpnm+'#dir='+direction+'#stop-id='+stops.stops[m].stpid+'">'
+          '<li><a href="?rt='+route+'?rt-name='+stops.stops[m].stpnm+'?dir='+direction+'?stop-id='+stops.stops[m].stpid+'">'
           +stops.stops[m].stpnm+
           '</a></li>'
         );
@@ -337,7 +337,7 @@ jQuery(function($) {
             count++;
             $('#arrivals').append(
               '<li class="prediction">' +
-                '<a href="#tl='+lineIndex+'#dir='+directionIndex+'#stop='+stopIndex+'#run='+predictions.predictions[i].run+'">'+
+                '<a href="?tl='+lineIndex+'?dir='+directionIndex+'?stop='+stopIndex+'?run='+predictions.predictions[i].run+'">'+
                 '<span class="line-color ' + predictions.predictions[i].line.substring(0, 3) + '"></span>' +
                 '<span class="destination">To ' + predictions.predictions[i].destination + '</span>' +
                 '<span class="arrival-time">' + predictions.predictions[i].eta + 'm</span>' +
@@ -382,7 +382,7 @@ jQuery(function($) {
           }
           $('#arrivals').append(
             '<li class="prediction">' +
-              '<a href="#rt='+routeNumber+'#vid='+aPredicition.vid+'#stop-id='+aPredicition.stpid+'#dir='+aPredicition.rtdir+'">'+
+              '<a href="?rt='+routeNumber+'?vid='+aPredicition.vid+'?stop-id='+aPredicition.stpid+'?dir='+aPredicition.rtdir+'">'+
                 '<span class="route-number">'+aPredicition.rt+'</span>'+
                 '<span class="destination">To '+aPredicition.des+'</span>'+
                 '<span class="arrival-time">'+aPredicition.prdctdn+arrivalMinutes+'</span>'+
@@ -428,7 +428,7 @@ jQuery(function($) {
           count++;
           $('#follow').append(
             '<li class="prediction'+followStop+'">' +
-            '<a href="#favorites">'+
+            '<a href="?favorites">'+
             '<span class="destination">' + predictions.predictions[i].stopName + '</span>' +
             '<span class="arrival-time">' + predictions.predictions[i].eta + 'm</span>' +
             ((predictions.predictions[i].isDly === '1') ? '<span class="delayed">Delayed</span>':'') +
@@ -489,7 +489,7 @@ jQuery(function($) {
           }
           $('#follow').append(
             '<li class="prediction'+followStop+'">' +
-              '<a href="#rt='+aPredicition.rt+'#rt-name='+aPredicition.stpnm+'#dir='+aPredicition.rtdir+'#stop-id='+aPredicition.stpid+'">'+
+              '<a href="?rt='+aPredicition.rt+'?rt-name='+aPredicition.stpnm+'?dir='+aPredicition.rtdir+'?stop-id='+aPredicition.stpid+'">'+
                 '<span class="destination">'+aPredicition.stpnm+'</span>'+
                 '<span class="arrival-time">'+aPredicition.prdctdn+arrivalMinutes+'</span>'+
                 arrivalClock +
@@ -518,7 +518,7 @@ jQuery(function($) {
         if(favorites.favorites[p].hasOwnProperty('train')) {
           $('#favorites').append(
             '<li>' +
-              '<a href="#tl='+fav.trainLine+'#dir='+fav.direction+'#stop='+fav.stop+'">' +
+              '<a href="?tl='+fav.trainLine+'?dir='+fav.direction+'?stop='+fav.stop+'">' +
                 '<span class="line-color '+trainLines.trainLines[fav.trainLine].lineName.substring(0,3)+'"></span>'+
                 '<span class="route-direction">'+trainLines.stops[fav.stop].direction.charAt(0)+'</span>'+
                 '<span class="route-name">'+trainLines.stops[fav.stop].stationName+'</span>'+
@@ -532,7 +532,7 @@ jQuery(function($) {
           stopI = favorites.favorites[p].stopId;
           $('#favorites').append(
             '<li>' +
-            '<a href="#rt='+route+'#rt-name='+routeName+'#dir='+direction+'#stop-id='+stopI+'">' +
+            '<a href="?rt='+route+'?rt-name='+routeName+'?dir='+direction+'?stop-id='+stopI+'">' +
             '<span class="route-number">'+route+'</span>'+
             '<span class="route-direction">'+direction.charAt(0)+'</span>'+
             '<span class="route-name">'+routeName+'</span>'+
@@ -576,7 +576,7 @@ jQuery(function($) {
     function addToFavorites() {
       var exists = isFavorite();
       if(exists <= 0) { //Favorite does not exist
-        var url = parseHash(location.hash);
+        var url = parseSearch(location.search);
         var newFavorite;
         if(url.hasOwnProperty('stop-id') && url.hasOwnProperty('rt') &&
           url.hasOwnProperty('rt-name') && url.hasOwnProperty('dir')) {
@@ -623,7 +623,7 @@ jQuery(function($) {
     }
 
     function isFavorite() {
-      var url = parseHash(location.hash);
+      var url = parseSearch(location.search);
       var stop;
       var u;
       loadFavorites();
@@ -651,8 +651,8 @@ jQuery(function($) {
       return -1;
     }
 
-    function parseHash(url) {
-      var params = (url.substr(1)).split('#');
+    function parseSearch(url) {
+      var params = (url.substr(1)).split('?');
       var pair;
       var values = {};
       for(var k=0;k<params.length;k++){
@@ -674,10 +674,6 @@ jQuery(function($) {
       var strTime = hours + ':' + minutes + amOrPm;
       return strTime;
     }
-
-    $(window).on('hashchange', function() {
-      decideScreen();
-    });
 
     $('#speaker-button').on('click', function() {
       toggleSpeaker();
@@ -738,7 +734,7 @@ jQuery(function($) {
     function refreshScreen() {
       if(!document.hidden) {
         var screen = getScreen();
-        var context = parseHash(location.hash);
+        var context = parseSearch(location.search);
         switch (screen) {
           case BUS_ARRIVALS:
             listPredictions(context['rt'],context['rt-name'].replace(/%20/g, ' '),context['dir'],context['stop-id']);
