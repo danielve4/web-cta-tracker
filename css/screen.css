@@ -10,6 +10,30 @@ a,abbr,acronym,address,applet,article,aside,audio,b,big,blockquote,body,canvas,c
 http://www.modularscale.com/?18&px&1.125
 */
 
+:root {
+  --aqua: rgb(0,245,234);
+  --aqua-opacity: rgba(0,245,234,0.15);
+  --blue: rgb(32,148,250);
+  --blue-opacity: rgba(32,148,250,0.17);
+  --orage: rgba(255,149,0);
+  --orage-opacity: rgba(255,149,0,0.15);
+  --pink: rgb(250,17,79);
+  --pink-opacity: rgba(250,17,79,0.17);
+  
+  --cta-blue: rgb(0,161,222);
+  --cta-blue-opacity: rgba(0,161,222,0.17);
+  --cta-red: rgb(198,12,48);
+  --cta-red-opacity: rgba(198,12,48,0.17);
+  --cta-brown: rgb(98,54,27);
+  --cta-green: rgb(0,155,58);
+  --cta-orange: rgb(249,70,28);
+  --cta-purple: rgb(82,35,152);
+  --cta-pink: rgb(226,126,166);
+  --cta-yellow: rgb(249,227,0);
+  --cta-yellow-opacity: rgba(249,227,0,0.17);
+  --cta-grey: rgb(86,90,92);
+}
+
 html {
   font-size: 1.125em;     /*18px / 16px = 1.125em*/
   line-height: 1.222em;   /*22px is 1 gridline at 18px | 22px / 18px = 1.222em*/
