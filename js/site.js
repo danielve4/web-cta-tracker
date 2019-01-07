@@ -10,7 +10,7 @@ jQuery(function ($) {
     var favorites = [];
     var speak = false;
     var intervalTimer;
-    var refreshInteval = 30;
+    var refreshInteval = 60 * 30;
     decideScreen();
 
     function getScreen() {
@@ -185,10 +185,9 @@ jQuery(function ($) {
       for (var i = 0; i < trainLines.trainLines.length; i++) {
         line = trainLines.trainLines[i];
         $('#train-lines').append(
-          '<li>' +
-          '<a href="#tl=' + i + '">' +
-          '<span class="line-color ' + line.lineName.substring(0, 3) + '"></span>' +
-          '<span class="route-name">' + line.lineName + ' Line</span></a>' +
+          '<li class="li' + line.lineName.substring(0, 3) + '">' +
+          '<div><a href="#tl=' + i + '" class="' + line.lineName.substring(0, 3) + '">' +
+          '<span class="route-name">' + line.lineName + ' Line</span></a></div' +
           '</li>'
         );
       }
@@ -375,18 +374,22 @@ jQuery(function ($) {
           aPredicition = predictions.prd[n];
           if (isNaN(aPredicition.prdctdn)) {
             arrivalMinutes = '';
-            arrivalClock = '';
+            arrivalClock = aPredicition.prdctdn === 'DUE' ? addMinutesAMPM(currentDate, futureDate, 0) : '';
           } else {
             arrivalMinutes = 'm';
-            arrivalClock = '<span class="arrival-clock">' + addMinutesAMPM(currentDate, futureDate, aPredicition.prdctdn) + '</span>';
+            arrivalClock = addMinutesAMPM(currentDate, futureDate, aPredicition.prdctdn);
           }
           $('#arrivals').append(
             '<li class="prediction">' +
             '<a href="#rt=' + routeNumber + '#vid=' + aPredicition.vid + '#stop-id=' + aPredicition.stpid + '#dir=' + aPredicition.rtdir + '">' +
-            '<span class="route-number">' + aPredicition.rt + '</span>' +
-            '<span class="destination">To ' + aPredicition.des + '</span>' +
-            '<span class="arrival-time">' + aPredicition.prdctdn + arrivalMinutes + '</span>' +
-            arrivalClock +
+            `
+              <ul>
+                <li>To ${aPredicition.des}</li>
+                <li>RT ${aPredicition.rt}</li>
+                <li>${aPredicition.prdctdn}${arrivalMinutes}</li>
+                <li>${arrivalClock}</li>
+              </ul>
+            ` +
             '</a>' +
             '</li>'
           );
