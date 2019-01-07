@@ -1,9 +1,9 @@
 $.noConflict();
-jQuery(function($) {
-  $(document).ready(function() {
-    var FAV='fav',ROUTES='routes',BUS_DIRECT='busDirections', TRAIN_DIRECT='trainDirections',
-      BUS_STOPS='busStops', TRAIN_STOPS= 'trainStops', BUS_ARRIVALS='busArrivals', 
-      TRAIN_ARRIVALS='trainArrivals', BUS_FOLLOW='busFollow',TRAIN_FOLLOW='trainFollow';
+jQuery(function ($) {
+  $(document).ready(function () {
+    var FAV = 'fav', ROUTES = 'routes', BUS_DIRECT = 'busDirections', TRAIN_DIRECT = 'trainDirections',
+      BUS_STOPS = 'busStops', TRAIN_STOPS = 'trainStops', BUS_ARRIVALS = 'busArrivals',
+      TRAIN_ARRIVALS = 'trainArrivals', BUS_FOLLOW = 'busFollow', TRAIN_FOLLOW = 'trainFollow';
     var LS_BUS_ROUTES = 'lsBusRoutes'; //Name of item in localStorage for bus stops
     var LS_TRAIN_LINES = 'lsTrainLines'; //Name of item in localStorage for train lines
     var lsFavorites = 'favorites'; //Name of item in localStorage for user favorites
@@ -14,38 +14,38 @@ jQuery(function($) {
     decideScreen();
 
     function getScreen() {
-      if(!location.search) {
-        if(loadFavorites() > 0) 
+      if (!location.search) {
+        if (loadFavorites() > 0)
           return FAV;
-        else 
+        else
           return ROUTES;
       } else {
         var context = parseSearch(location.search);
-        if(context.hasOwnProperty('favorites')) 
+        if (context.hasOwnProperty('favorites'))
           return FAV;
-        else if(context.hasOwnProperty('routes')) {
+        else if (context.hasOwnProperty('routes')) {
           return ROUTES;
-        } else if(context.hasOwnProperty('rt')) {
-          if(context.hasOwnProperty('dir') && !context.hasOwnProperty('stop-id')) {
+        } else if (context.hasOwnProperty('rt')) {
+          if (context.hasOwnProperty('dir') && !context.hasOwnProperty('stop-id')) {
             return BUS_STOPS;
-          } else if(context.hasOwnProperty('rt-name') && context.hasOwnProperty('dir') &&
-                  context.hasOwnProperty('stop-id')) {
+          } else if (context.hasOwnProperty('rt-name') && context.hasOwnProperty('dir') &&
+            context.hasOwnProperty('stop-id')) {
             return BUS_ARRIVALS;
-          } else if(context.hasOwnProperty('vid') && context.hasOwnProperty('stop-id') &&
-                  context.hasOwnProperty('dir')) {
+          } else if (context.hasOwnProperty('vid') && context.hasOwnProperty('stop-id') &&
+            context.hasOwnProperty('dir')) {
             return BUS_FOLLOW;
-          } else 
-            return BUS_DIRECT;
-        } else if(context.hasOwnProperty('tl')) {
-          if(context.hasOwnProperty('dir') && !context.hasOwnProperty('stop')) {
-            return TRAIN_STOPS;
-          } else if(context.hasOwnProperty('run') && context.hasOwnProperty('dir') &&
-            context.hasOwnProperty('stop')) {
-              return TRAIN_FOLLOW;
-          } else if(context.hasOwnProperty('dir') && context.hasOwnProperty('stop')) {
-              return TRAIN_ARRIVALS;
           } else
-              return TRAIN_DIRECT;
+            return BUS_DIRECT;
+        } else if (context.hasOwnProperty('tl')) {
+          if (context.hasOwnProperty('dir') && !context.hasOwnProperty('stop')) {
+            return TRAIN_STOPS;
+          } else if (context.hasOwnProperty('run') && context.hasOwnProperty('dir') &&
+            context.hasOwnProperty('stop')) {
+            return TRAIN_FOLLOW;
+          } else if (context.hasOwnProperty('dir') && context.hasOwnProperty('stop')) {
+            return TRAIN_ARRIVALS;
+          } else
+            return TRAIN_DIRECT;
         }
       }
     }
@@ -63,12 +63,12 @@ jQuery(function($) {
     }
 
     function decideScreen() {
-      if(intervalTimer)
+      if (intervalTimer)
         clearInterval(intervalTimer);
       var screen = getScreen();
       var context = parseSearch(location.search);
       hideEverything();
-      switch(screen) {
+      switch (screen) {
         case FAV:
           $('#favorites').removeClass('hidden');
           $('#favorites-nav').addClass('active');
@@ -95,7 +95,7 @@ jQuery(function($) {
         case BUS_STOPS:
           $('#stops').removeClass('hidden');
           $('#refresh-button').removeClass('hidden');
-          listRouteStops(context.rt,context['dir']);
+          listRouteStops(context.rt, context['dir']);
           break;
         case TRAIN_STOPS:
           $('#stops').removeClass('hidden');
@@ -105,17 +105,17 @@ jQuery(function($) {
           $('#arrivals').removeClass('hidden');
           $('#app-bar-fav').removeClass('hidden');
           $('#refresh-button').removeClass('hidden');
-          listPredictions(context['rt'],context['rt-name'].replace(/%20/g, ' '),context['dir'],context['stop-id']);
+          listPredictions(context['rt'], context['rt-name'].replace(/%20/g, ' '), context['dir'], context['stop-id']);
           checkFavorite();
-          intervalTimer = setInterval(function(){refreshScreen();},(1000*refreshInteval));
+          intervalTimer = setInterval(function () { refreshScreen(); }, (1000 * refreshInteval));
           break;
         case TRAIN_ARRIVALS:
           $('#arrivals').removeClass('hidden');
           $('#app-bar-fav').removeClass('hidden');
           $('#refresh-button').removeClass('hidden');
-          listTrainPredictions(context['tl'],context['dir'],context['stop']);
+          listTrainPredictions(context['tl'], context['dir'], context['stop']);
           checkFavorite();
-          intervalTimer = setInterval(function(){refreshScreen();},(1000*refreshInteval));
+          intervalTimer = setInterval(function () { refreshScreen(); }, (1000 * refreshInteval));
           break;
         case BUS_FOLLOW:
           $('#follow').removeClass('hidden');
@@ -135,7 +135,7 @@ jQuery(function($) {
 
     function getRequest(url) {
       console.log("Making a get request");
-      return new Promise((resolve,reject) => {
+      return new Promise((resolve, reject) => {
         $.when($.ajax({
           "async": true,
           "crossDomain": true,
@@ -145,7 +145,7 @@ jQuery(function($) {
             "content-type": "application/json"
           },
           "processData": false
-        })).then(function(data) {
+        })).then(function (data) {
           resolve(data);
         }, function () {
           reject("Error");
@@ -156,24 +156,24 @@ jQuery(function($) {
 
     async function getTrainLines() {
       var trainLines = localStorage.getItem(LS_TRAIN_LINES);
-      if(trainLines)
+      if (trainLines)
         trainLines = JSON.parse(trainLines);
       else {
         var url = 'allTrainStops.json';
         trainLines = await getRequest(url);
-        localStorage.setItem(LS_TRAIN_LINES,JSON.stringify(trainLines));
+        localStorage.setItem(LS_TRAIN_LINES, JSON.stringify(trainLines));
       }
       return trainLines;
     }
 
     async function getBusRoutes() {
       var busRoutes = localStorage.getItem(LS_BUS_ROUTES);
-      if(busRoutes) 
+      if (busRoutes)
         busRoutes = JSON.parse(busRoutes);
       else {
         var url = 'https://us-central1-cta-tracking-functions.cloudfunctions.net/busGetAllRoutes';
         busRoutes = await getRequest(url);
-        localStorage.setItem(LS_BUS_ROUTES,JSON.stringify(busRoutes));
+        localStorage.setItem(LS_BUS_ROUTES, JSON.stringify(busRoutes));
       }
       return busRoutes;
     }
@@ -182,13 +182,12 @@ jQuery(function($) {
       $('#train-lines').empty();
       var trainLines = await getTrainLines();
       var line;
-      for(var i=0; i<trainLines.trainLines.length; i++) {
+      for (var i = 0; i < trainLines.trainLines.length; i++) {
         line = trainLines.trainLines[i];
         $('#train-lines').append(
-          '<li>' +
-            '<a href="?tl='+i+'">'+
-              '<span class="line-color '+line.lineName.substring(0,3)+'"></span>'+
-              '<span class="route-name">' +line.lineName+ ' Line</span></a>'+
+          '<li class="li' + line.lineName.substring(0, 3) + '">' +
+          '<div><a href="?tl=' + i + '" class="' + line.lineName.substring(0, 3) + '">' +
+          '<span class="route-name">' + line.lineName + ' Line</span></a></div' +
           '</li>'
         );
       }
@@ -198,14 +197,14 @@ jQuery(function($) {
       $('#routes').empty();
       var busRoutes = await getBusRoutes();
       var route;
-      for(var i=0; i< busRoutes.routes.length; i++) {
+      for (var i = 0; i < busRoutes.routes.length; i++) {
         route = busRoutes.routes[i];
         $('#routes').append(
           '<li>' +
-            '<a href="?rt='+route.rt+'"id="'+route.rt+'">' +
-              '<span class="route-number">'+route.rt+ '</span>' +
-              '<span class="route-name">' +route.rtnm+ '</span>' +
-            '</a>' +
+          '<a href="?rt=' + route.rt + '"id="' + route.rt + '">' +
+          '<span class="route-number">' + route.rt + '</span>' +
+          '<span class="route-name">' + route.rtnm + '</span>' +
+          '</a>' +
           '</li>'
         );
       }
@@ -215,26 +214,26 @@ jQuery(function($) {
       var trainLines = await getTrainLines();
       var line = trainLines.trainLines[lineIndex];
       $('#route-directions').empty();
-      $('#route-directions').append('<li class="list-subheader">'+line.lineName+' Line - Choose a direction</li>');
-      for(var i=0;i<line.directions.length;i++) {
+      $('#route-directions').append('<li class="list-subheader">' + line.lineName + ' Line - Choose a direction</li>');
+      for (var i = 0; i < line.directions.length; i++) {
         $('#route-directions').append(
-          '<li><a href="?tl='+lineIndex+'?dir='+i+'">'
-          +'To '+line.directions[i].direction+
+          '<li><a href="?tl=' + lineIndex + '?dir=' + i + '">'
+          + 'To ' + line.directions[i].direction +
           '</a></li>'
         );
       }
     }
 
     async function getBusRouteDirections(busRoute) {
-      var busRouteDirections = localStorage.getItem('lsBusDir'+busRoute);
-      if(busRouteDirections) {
+      var busRouteDirections = localStorage.getItem('lsBusDir' + busRoute);
+      if (busRouteDirections) {
         busRouteDirections = JSON.parse(busRouteDirections);
       }
       else {
-        var url = 'https://us-central1-cta-tracking-functions.cloudfunctions.net/'+
-        'busGetBusRouteDirections/?busRoute='+busRoute;
+        var url = 'https://us-central1-cta-tracking-functions.cloudfunctions.net/' +
+          'busGetBusRouteDirections/?busRoute=' + busRoute;
         busRouteDirections = await getRequest(url);
-        localStorage.setItem('lsBusDir'+busRoute,JSON.stringify(busRouteDirections));
+        localStorage.setItem('lsBusDir' + busRoute, JSON.stringify(busRouteDirections));
       }
       return busRouteDirections;
     }
@@ -243,11 +242,11 @@ jQuery(function($) {
       $('#route-directions').empty();
       var busRouteDirections = await getBusRouteDirections(rNumber);
       console.log(busRouteDirections);
-      $('#route-directions').append('<li class="list-subheader">Route '+rNumber+' - Choose a direction</li>');
-      for(var j=0;j<busRouteDirections.directions.length;j++) {
+      $('#route-directions').append('<li class="list-subheader">Route ' + rNumber + ' - Choose a direction</li>');
+      for (var j = 0; j < busRouteDirections.directions.length; j++) {
         $('#route-directions').append(
-          '<li><a href="?rt='+rNumber+'?dir='+busRouteDirections.directions[j].dir+'">'
-          +busRouteDirections.directions[j].dir+
+          '<li><a href="?rt=' + rNumber + '?dir=' + busRouteDirections.directions[j].dir + '">'
+          + busRouteDirections.directions[j].dir +
           '</a></li>'
         );
       }
@@ -259,15 +258,15 @@ jQuery(function($) {
       var line = trainLines.trainLines[lineIndex];
       var direction = line.directions[directionIndex];
       $('#stops').append(
-        '<li class="list-subheader">'+line.lineName+' Line - '+ direction.direction+' -  Choose a stop</li>'
+        '<li class="list-subheader">' + line.lineName + ' Line - ' + direction.direction + ' -  Choose a stop</li>'
       );
       var aStop;
-      for(var i=0;i<trainLines.stops.length;i++) {
+      for (var i = 0; i < trainLines.stops.length; i++) {
         aStop = trainLines.stops[i];
-        if(aStop[line.lineName] && aStop.trDr == direction.trainDirection) {
+        if (aStop[line.lineName] && aStop.trDr == direction.trainDirection) {
           $('#stops').append(
-            '<li><a href="?tl='+lineIndex+'?dir='+directionIndex+'?stop='+i+'">'
-            +aStop.stationName+
+            '<li><a href="?tl=' + lineIndex + '?dir=' + directionIndex + '?stop=' + i + '">'
+            + aStop.stationName +
             '</a></li>'
           );
         }
@@ -275,14 +274,14 @@ jQuery(function($) {
     }
 
     async function getBusRouteStops(route, direction) {
-      var busRouteStops = localStorage.getItem('lsBusStops'+route+direction);
-      if(busRouteStops)
+      var busRouteStops = localStorage.getItem('lsBusStops' + route + direction);
+      if (busRouteStops)
         busRouteStops = JSON.parse(busRouteStops);
       else {
-        var url = 'https://us-central1-cta-tracking-functions.cloudfunctions.net/'+
-        'busGetBusStops/?busRoute='+route+'&direction='+direction;
+        var url = 'https://us-central1-cta-tracking-functions.cloudfunctions.net/' +
+          'busGetBusStops/?busRoute=' + route + '&direction=' + direction;
         busRouteStops = await getRequest(url);
-        localStorage.setItem('lsBusStops'+route+direction,JSON.stringify(busRouteStops));
+        localStorage.setItem('lsBusStops' + route + direction, JSON.stringify(busRouteStops));
       }
       return busRouteStops;
     }
@@ -290,28 +289,28 @@ jQuery(function($) {
     async function listRouteStops(route, direction) {
       $('#stops').empty();
       $('#stops').append(
-        '<li class="list-subheader">Route '+ route +' - '+ direction+' -  Choose a stop</li>'
+        '<li class="list-subheader">Route ' + route + ' - ' + direction + ' -  Choose a stop</li>'
       );
-      var stops = await getBusRouteStops(route,direction);
-      for(var m=0;m<stops.stops.length;m++) {
+      var stops = await getBusRouteStops(route, direction);
+      for (var m = 0; m < stops.stops.length; m++) {
         $('#stops').append(
-          '<li><a href="?rt='+route+'?rt-name='+stops.stops[m].stpnm+'?dir='+direction+'?stop-id='+stops.stops[m].stpid+'">'
-          +stops.stops[m].stpnm+
+          '<li><a href="?rt=' + route + '?rt-name=' + stops.stops[m].stpnm + '?dir=' + direction + '?stop-id=' + stops.stops[m].stpid + '">'
+          + stops.stops[m].stpnm +
           '</a></li>'
         );
       }
     }
 
     async function getTrainPredictions(mapId) {
-      var url = 'https://us-central1-cta-tracking-functions.cloudfunctions.net/'+
-      'trainGetPredictions/?mapId='+mapId;
+      var url = 'https://us-central1-cta-tracking-functions.cloudfunctions.net/' +
+        'trainGetPredictions/?mapId=' + mapId;
       var predictions = await getRequest(url);
       return predictions;
     }
 
     async function getBusPredictions(stopId) {
-      var url = "https://us-central1-cta-tracking-functions.cloudfunctions.net/"+
-      "busGetPredictions/?busStopId="+stopId;
+      var url = "https://us-central1-cta-tracking-functions.cloudfunctions.net/" +
+        "busGetPredictions/?busStopId=" + stopId;
       var predictions = await getRequest(url);
       return predictions;
     }
@@ -325,34 +324,42 @@ jQuery(function($) {
       var stopId = stop.stopId;
       var trDr = direction.trainDirection;
       $('#arrivals').empty();
-      $('#arrivals').append('<li class="list-subheader">'+stop.stationName+' - '+stop.direction+' Bound</li>');
+      $('#arrivals').append('<li class="list-subheader">' + stop.stationName + ' - ' + stop.direction + ' Bound</li>');
       var predictions = await getTrainPredictions(mapId);
-      speakArrivalTimes('train', predictions,stopId,trDr);
-      if(predictions.hasOwnProperty('predictions')) {
+      speakArrivalTimes('train', predictions, stopId, trDr);
+      if (predictions.hasOwnProperty('predictions')) {
         var count = 0;
         var currentDate = new Date();
         var futureDate = new Date();
+        let scheduled;
+        let delayed;
+        let trainColor;
         for (var i = 0; i < predictions.predictions.length; i++) {
           if (predictions.predictions[i].stopId == stopId || predictions.predictions[i].trDr == trDr) {
             count++;
+            trainColor = getTrainColor(predictions.predictions[i].line.substring(0, 3));
+            scheduled = predictions.predictions[i].isSch === '1' ? true : false;
+            delayed = predictions.predictions[i].isDly === '1' ? true : false;
             $('#arrivals').append(
               '<li class="prediction">' +
-                '<a href="?tl='+lineIndex+'?dir='+directionIndex+'?stop='+stopIndex+'?run='+predictions.predictions[i].run+'">'+
-                '<span class="line-color ' + predictions.predictions[i].line.substring(0, 3) + '"></span>' +
-                '<span class="destination">To ' + predictions.predictions[i].destination + '</span>' +
-                '<span class="arrival-time">' + predictions.predictions[i].eta + 'm</span>' +
-                ((predictions.predictions[i].isDly === '1') ? '<span class="delayed">Delayed</span>':'') +
-                ((predictions.predictions[i].isSch === '1') ? '<span class="scheduled">Scheduled</span>':'') +
-                '<span class="arrival-clock">'+ addMinutesAMPM(currentDate, futureDate, predictions.predictions[i].eta)+'</span>'+
-                '</a>'+
+              '<a href="?tl=' + lineIndex + '?dir=' + directionIndex + '?stop=' + stopIndex + '?run=' + predictions.predictions[i].run + '" class="train-arrival-a ' + (scheduled ? 'schedule' : '') + ' ' + (delayed ? 'delay' : 'on-time') + '">' +
+              `
+                <ul class="prediction-container">
+                  <li class="train-destination">${scheduled ? 'SCHEDULED' : ''} ${delayed ? 'DELAYED' : ''} To ${predictions.predictions[i].destination}</li>
+                  <li class="train-line-name ${predictions.predictions[i].line.substring(0, 3)}">${trainColor}</li>
+                  <li class="train-minutes">${predictions.predictions[i].eta}m</li>
+                  <li class="train-time">${addMinutesAMPM(currentDate, futureDate, predictions.predictions[i].eta)}</li>
+                </ul>
+              ` +
+              '</a>' +
               '</li>'
             );
           }
         }
-        if(count === 0) {
+        if (count === 0) {
           $('#arrivals').append(
             '<li class="prediction">' +
-              '<span class="no-arrivals">No arrival times 😿</span>'+
+            '<span class="no-arrivals">No arrival times 😿</span>' +
             '</li>'
           );
         }
@@ -361,149 +368,156 @@ jQuery(function($) {
 
     async function listPredictions(routeNumber, routeName, direction, stopId) {
       $('#arrivals').empty();
-      $('#arrivals').append('<li class="list-subheader">'+routeName+' - '+ direction+'</li>');
+      $('#arrivals').append('<li class="list-subheader">' + routeName + ' - ' + direction + '</li>');
       var predictions = await getBusPredictions(stopId);
-      speakArrivalTimes('bus',predictions);
+      speakArrivalTimes('bus', predictions);
       console.log(predictions);
-      if(predictions.hasOwnProperty('prd')) {
+      if (predictions.hasOwnProperty('prd')) {
         var currentDate = new Date();
         var futureDate = new Date();
         var arrivalMinutes;
         var arrivalClock;
         var aPredicition;
-        for(var n=0;n<predictions.prd.length;n++) {
+        for (var n = 0; n < predictions.prd.length; n++) {
           aPredicition = predictions.prd[n];
-          if(isNaN(aPredicition.prdctdn)) {
-           arrivalMinutes = '';
-           arrivalClock = '';
+          let onTime = 'on-time';
+          if (isNaN(aPredicition.prdctdn)) {
+            arrivalMinutes = '';
+            arrivalClock = aPredicition.prdctdn === 'DUE' ? addMinutesAMPM(currentDate,
+              futureDate, 0) : '';
+            onTime = aPredicition.prdctdn === 'DLY' ? 'delay' : 'on-time';
           } else {
             arrivalMinutes = 'm';
-            arrivalClock = '<span class="arrival-clock">'+addMinutesAMPM(currentDate,futureDate,aPredicition.prdctdn)+'</span>';
+            arrivalClock = addMinutesAMPM(currentDate, futureDate, aPredicition.prdctdn);
           }
           $('#arrivals').append(
             '<li class="prediction">' +
-              '<a href="?rt='+routeNumber+'?vid='+aPredicition.vid+'?stop-id='+aPredicition.stpid+'?dir='+aPredicition.rtdir+'">'+
-                '<span class="route-number">'+aPredicition.rt+'</span>'+
-                '<span class="destination">To '+aPredicition.des+'</span>'+
-                '<span class="arrival-time">'+aPredicition.prdctdn+arrivalMinutes+'</span>'+
-                arrivalClock +
-              '</a>' +
+            '<a href="?rt=' + routeNumber + '?vid=' + aPredicition.vid + '?stop-id=' + aPredicition.stpid + '?dir=' + aPredicition.rtdir + '" class="bus-arrival-a ' + onTime + '">' +
+            `
+              <ul class="prediction-container">
+              <li class="bus-destination">To ${aPredicition.des}</li>
+              <li class="bus-route">RT ${aPredicition.rt}</li>
+              <li class="bus-minutes">${aPredicition.prdctdn}${arrivalMinutes}</li>
+              <li class="bus-time">${arrivalClock}</li>
+              </ul>
+            ` +
+            '</a>' +
             '</li>'
           );
         }
-      } else if(predictions.hasOwnProperty('error')) {
+      } else if (predictions.hasOwnProperty('error')) {
         $('#arrivals').append(
-          '<li class="prediction"><span class="no-arrivals">'+predictions.error[0].msg+' 😿</span></li>'
+          '<li class="prediction"><span class="no-arrivals">' + predictions.error[0].msg + ' 😿</span></li>'
         );
       }
     }
 
     async function getFollowTrainPredictions(runNumber) {
-      var url = 'https://us-central1-cta-tracking-functions.cloudfunctions.net/'+
-      'trainGetFollow/?runnum='+runNumber;
+      var url = 'https://us-central1-cta-tracking-functions.cloudfunctions.net/' +
+        'trainGetFollow/?runnum=' + runNumber;
       var predictions = await getRequest(url);
       return predictions;
     }
-    
+
     async function listFollowTrain(runNumber, lineIndex, directionIndex, stopIndex) {
       var trainLines = await getTrainLines();
       var line = trainLines.trainLines[lineIndex];
       var direction = line.directions[directionIndex];
       var stop = trainLines.stops[stopIndex];
       $('#follow').empty();
-      $('#follow').append('<li class="list-subheader">Train Run #'+runNumber+' - '+line.lineName+' Line - '+direction.direction+'</li>');
+      $('#follow').append('<li class="list-subheader">Train Run #' + runNumber + ' - ' + line.lineName + ' Line - ' + direction.direction + '</li>');
       var predictions = await getFollowTrainPredictions(runNumber);
       console.log(predictions);
-      if(predictions.hasOwnProperty('predictions')) {
+      if (predictions.hasOwnProperty('predictions')) {
         var count = 0;
         var currentDate = new Date();
         var futureDate = new Date();
         var followStop;
         for (var i = 0; i < predictions.predictions.length; i++) {
-          if(predictions.predictions[i].stopId == stop.mapId) {
+          if (predictions.predictions[i].stopId == stop.mapId) {
             followStop = ' follow-stop';
           } else {
-            followStop ='';
+            followStop = '';
           }
           count++;
           $('#follow').append(
-            '<li class="prediction'+followStop+'">' +
-            '<a href="?favorites">'+
+            '<li class="prediction' + followStop + '">' +
+            '<a href="?favorites">' +
             '<span class="destination">' + predictions.predictions[i].stopName + '</span>' +
             '<span class="arrival-time">' + predictions.predictions[i].eta + 'm</span>' +
-            ((predictions.predictions[i].isDly === '1') ? '<span class="delayed">Delayed</span>':'') +
-            ((predictions.predictions[i].isSch === '1') ? '<span class="scheduled">Scheduled</span>':'') +
-            '<span class="arrival-clock">'+ addMinutesAMPM(currentDate, futureDate, predictions.predictions[i].eta)+'</span>'+
-            '</a>'+
+            ((predictions.predictions[i].isDly === '1') ? '<span class="delayed">Delayed</span>' : '') +
+            ((predictions.predictions[i].isSch === '1') ? '<span class="scheduled">Scheduled</span>' : '') +
+            '<span class="arrival-clock">' + addMinutesAMPM(currentDate, futureDate, predictions.predictions[i].eta) + '</span>' +
+            '</a>' +
             '</li>'
           );
         }
-        if(count === 0) {
+        if (count === 0) {
           $('#follow').append(
             '<li class="prediction">' +
-            '<span class="no-arrivals">No arrival times 😿</span>'+
+            '<span class="no-arrivals">No arrival times 😿</span>' +
             '</li>'
           );
         }
       } else {
         $('#follow').append(
-            '<li class="prediction">' +
-            '<span>Unable to determine upcoming stops.</span>'+
-            '</li>'
-          );
+          '<li class="prediction">' +
+          '<span>Unable to determine upcoming stops.</span>' +
+          '</li>'
+        );
       }
     }
 
     async function getFollowBusPredictions(vehicleId) {
-      var url = 'https://us-central1-cta-tracking-functions.cloudfunctions.net/'+
-      'busGetFollow/?vehicleId='+vehicleId;
+      var url = 'https://us-central1-cta-tracking-functions.cloudfunctions.net/' +
+        'busGetFollow/?vehicleId=' + vehicleId;
       var predictions = await getRequest(url);
       return predictions;
     }
 
     async function listFollowBus(routeNumber, vehicleId, stopId, direction) {
       $('#follow').empty();
-      $('#follow').append('<li class="list-subheader">Bus #'+vehicleId+' - '+routeNumber+' - '+ direction+'</li>');
+      $('#follow').append('<li class="list-subheader">Bus #' + vehicleId + ' - ' + routeNumber + ' - ' + direction + '</li>');
       var predictions = await getFollowBusPredictions(vehicleId);
       console.log(predictions);
-      if(predictions.hasOwnProperty('prd')) {
+      if (predictions.hasOwnProperty('prd')) {
         var currentDate = new Date();
         var futureDate = new Date();
         var arrivalMinutes;
         var arrivalClock;
         var aPredicition;
         var followStop;
-        for(var n=0;n<predictions.prd.length;n++) {
+        for (var n = 0; n < predictions.prd.length; n++) {
           aPredicition = predictions.prd[n];
-          if(isNaN(aPredicition.prdctdn)) {
+          if (isNaN(aPredicition.prdctdn)) {
             arrivalMinutes = '';
             arrivalClock = '';
           } else {
             arrivalMinutes = 'm';
-            arrivalClock = '<span class="arrival-clock">'+addMinutesAMPM(currentDate,futureDate,aPredicition.prdctdn)+'</span>';
+            arrivalClock = '<span class="arrival-clock">' + addMinutesAMPM(currentDate, futureDate, aPredicition.prdctdn) + '</span>';
           }
-          if(aPredicition.stpid == stopId) {
+          if (aPredicition.stpid == stopId) {
             followStop = ' follow-stop';
           } else {
-            followStop ='';
+            followStop = '';
           }
           $('#follow').append(
-            '<li class="prediction'+followStop+'">' +
-              '<a href="?rt='+aPredicition.rt+'?rt-name='+aPredicition.stpnm+'?dir='+aPredicition.rtdir+'?stop-id='+aPredicition.stpid+'">'+
-                '<span class="destination">'+aPredicition.stpnm+'</span>'+
-                '<span class="arrival-time">'+aPredicition.prdctdn+arrivalMinutes+'</span>'+
-                arrivalClock +
-              '</a>' +
+            '<li class="prediction' + followStop + '">' +
+            '<a href="?rt=' + aPredicition.rt + '?rt-name=' + aPredicition.stpnm + '?dir=' + aPredicition.rtdir + '?stop-id=' + aPredicition.stpid + '">' +
+            '<span class="destination">' + aPredicition.stpnm + '</span>' +
+            '<span class="arrival-time">' + aPredicition.prdctdn + arrivalMinutes + '</span>' +
+            arrivalClock +
+            '</a>' +
             '</li>'
           );
         }
-      } else if(predictions.hasOwnProperty('error')) {
+      } else if (predictions.hasOwnProperty('error')) {
         $('#follow').append(
-          '<li class="prediction"><span class="no-arrivals">'+predictions.error[0].msg+' 😿</span></li>'
+          '<li class="prediction"><span class="no-arrivals">' + predictions.error[0].msg + ' 😿</span></li>'
         );
       }
     }
-    
+
     $('#favorite-button').on('click', function (e) {
       toggleFavorite();
     });
@@ -513,29 +527,29 @@ jQuery(function($) {
       var trainLines = await getTrainLines();
       loadFavorites();
       var route, routeName, direction, stopI, fav;
-      for(var p=0;p<favorites.favorites.length;p++) {
+      for (var p = 0; p < favorites.favorites.length; p++) {
         fav = favorites.favorites[p];
-        if(favorites.favorites[p].hasOwnProperty('train')) {
+        if (favorites.favorites[p].hasOwnProperty('train')) {
           $('#favorites').append(
             '<li>' +
-              '<a href="?tl='+fav.trainLine+'?dir='+fav.direction+'?stop='+fav.stop+'">' +
-                '<span class="line-color '+trainLines.trainLines[fav.trainLine].lineName.substring(0,3)+'"></span>'+
-                '<span class="route-direction">'+trainLines.stops[fav.stop].direction.charAt(0)+'</span>'+
-                '<span class="route-name">'+trainLines.stops[fav.stop].stationName+'</span>'+
-              '</a>' +
+            '<a href="?tl=' + fav.trainLine + '?dir=' + fav.direction + '?stop=' + fav.stop + '">' +
+            '<span class="line-color ' + trainLines.trainLines[fav.trainLine].lineName.substring(0, 3) + '"></span>' +
+            '<span class="route-direction">' + trainLines.stops[fav.stop].direction.charAt(0) + '</span>' +
+            '<span class="route-name">' + trainLines.stops[fav.stop].stationName + '</span>' +
+            '</a>' +
             '</li>'
           );
-        } else if(!favorites.favorites[p].hasOwnProperty('train')) {
+        } else if (!favorites.favorites[p].hasOwnProperty('train')) {
           route = favorites.favorites[p].routeNumber;
           routeName = favorites.favorites[p].routeName;
           direction = favorites.favorites[p].direction;
           stopI = favorites.favorites[p].stopId;
           $('#favorites').append(
             '<li>' +
-            '<a href="?rt='+route+'?rt-name='+routeName+'?dir='+direction+'?stop-id='+stopI+'">' +
-            '<span class="route-number">'+route+'</span>'+
-            '<span class="route-direction">'+direction.charAt(0)+'</span>'+
-            '<span class="route-name">'+routeName+'</span>'+
+            '<a href="?rt=' + route + '?rt-name=' + routeName + '?dir=' + direction + '?stop-id=' + stopI + '">' +
+            '<span class="route-number">' + route + '</span>' +
+            '<span class="route-direction">' + direction.charAt(0) + '</span>' +
+            '<span class="route-name">' + routeName + '</span>' +
             '</a>' +
             '</li>'
           );
@@ -549,7 +563,7 @@ jQuery(function($) {
       try {
         favoritesJSON = JSON.parse(favorites);
         if (favoritesJSON && typeof favoritesJSON === "object") {
-          favorites =  favoritesJSON;
+          favorites = favoritesJSON;
         } else {
           favoritesJSON = {
             'favorites': []
@@ -560,25 +574,25 @@ jQuery(function($) {
           'favorites': []
         };
       }
-      favorites =  favoritesJSON;
+      favorites = favoritesJSON;
       console.log(favorites);
       return favorites.favorites.length;
     }
 
     function toggleFavorite() {
-      if($('#favorite-button').hasClass('fill')) {
+      if ($('#favorite-button').hasClass('fill')) {
         deleteFavorite();
-      } else if($('#favorite-button').hasClass('no-fill')) {
+      } else if ($('#favorite-button').hasClass('no-fill')) {
         addToFavorites();
       }
     }
 
     function addToFavorites() {
       var exists = isFavorite();
-      if(exists <= 0) { //Favorite does not exist
+      if (exists <= 0) { //Favorite does not exist
         var url = parseSearch(location.search);
         var newFavorite;
-        if(url.hasOwnProperty('stop-id') && url.hasOwnProperty('rt') &&
+        if (url.hasOwnProperty('stop-id') && url.hasOwnProperty('rt') &&
           url.hasOwnProperty('rt-name') && url.hasOwnProperty('dir')) {
           newFavorite = {
             'routeNumber': url['rt'],
@@ -586,7 +600,7 @@ jQuery(function($) {
             'routeName': url['rt-name'].replace(/%20/g, ' '),
             'stopId': url['stop-id']
           };
-        } else if(url.hasOwnProperty('tl') && url.hasOwnProperty('stop') && url.hasOwnProperty('dir')) {
+        } else if (url.hasOwnProperty('tl') && url.hasOwnProperty('stop') && url.hasOwnProperty('dir')) {
           newFavorite = {
             'train': true,
             'trainLine': url['tl'],
@@ -600,20 +614,20 @@ jQuery(function($) {
         $('#favorite-button').addClass('fill');
       }
     }
-    
+
     function deleteFavorite() {
       var index = isFavorite();
-      if(index >= 0) {
+      if (index >= 0) {
         favorites.favorites.splice(index, 1);
         localStorage.setItem(lsFavorites, JSON.stringify(favorites));
         $('#favorite-button').removeClass('fill');
         $('#favorite-button').addClass('no-fill');
       }
     }
-    
+
     function checkFavorite() {
       var exists = isFavorite();
-      if(exists >= 0) {
+      if (exists >= 0) {
         $('#favorite-button').removeClass('no-fill');
         $('#favorite-button').addClass('fill');
       } else {
@@ -627,7 +641,7 @@ jQuery(function($) {
       var stop;
       var u;
       loadFavorites();
-      if(url.hasOwnProperty('stop-id') && url.hasOwnProperty('rt') &&
+      if (url.hasOwnProperty('stop-id') && url.hasOwnProperty('rt') &&
         url.hasOwnProperty('rt-name') && url.hasOwnProperty('dir')) {
         for (u = 0; u < favorites.favorites.length; u++) {
           if (!favorites.favorites[u].hasOwnProperty('train') &&
@@ -638,7 +652,7 @@ jQuery(function($) {
             return u;
           }
         }
-      } else if(url.hasOwnProperty('tl') && url.hasOwnProperty('stop') && url.hasOwnProperty('dir')) {
+      } else if (url.hasOwnProperty('tl') && url.hasOwnProperty('stop') && url.hasOwnProperty('dir')) {
         for (u = 0; u < favorites.favorites.length; u++) {
           if (favorites.favorites[u].hasOwnProperty('train') &&
             url['tl'] === favorites.favorites[u].trainLine &&
@@ -655,7 +669,7 @@ jQuery(function($) {
       var params = (url.substr(1)).split('?');
       var pair;
       var values = {};
-      for(var k=0;k<params.length;k++){
+      for (var k = 0; k < params.length; k++) {
         pair = params[k].split('=');
         values[pair[0]] = pair[1];
       }
@@ -670,18 +684,18 @@ jQuery(function($) {
       var amOrPm = hours >= 12 ? 'pm' : 'am';
       hours = hours % 12;
       hours = hours ? hours : 12;
-      minutes = minutes < 10 ? '0'+minutes : minutes;
+      minutes = minutes < 10 ? '0' + minutes : minutes;
       var strTime = hours + ':' + minutes + amOrPm;
       return strTime;
     }
 
-    $('#speaker-button').on('click', function() {
+    $('#speaker-button').on('click', function () {
       toggleSpeaker();
     });
 
     function toggleSpeaker() {
       speak = !speak;
-      if(speak) {
+      if (speak) {
         $('#speaker-button').removeClass('mute');
         $('#speaker-button').addClass('speak');
       } else {
@@ -690,32 +704,32 @@ jQuery(function($) {
       }
     }
 
-    function speakArrivalTimes(vehicleType, arrivals,stopId,trDr) {
-      if(speak) {
-        var utterance = vehicleType+' coming in ';
-        if(vehicleType=='bus') {
+    function speakArrivalTimes(vehicleType, arrivals, stopId, trDr) {
+      if (speak) {
+        var utterance = vehicleType + ' coming in ';
+        if (vehicleType == 'bus') {
           var allPredictions = arrivals['prd'];
-          if(allPredictions.length == 1) {
+          if (allPredictions.length == 1) {
             utterance += allPredictions[0].prdctdn;
           } else {
-            for(var i=0;i<allPredictions.length-1;i++) {
+            for (var i = 0; i < allPredictions.length - 1; i++) {
               utterance += allPredictions[i].prdctdn + ", ";
             }
-            utterance += "and " + allPredictions[allPredictions.length-1].prdctdn;
+            utterance += "and " + allPredictions[allPredictions.length - 1].prdctdn;
           }
           utterance += " minutes.";
         } else {
           var allPredictions = arrivals['predictions'];
-          if(allPredictions.length == 1 && allPredictions[0].stopId == stopId || allPredictions[0].trDr == trDr) {
+          if (allPredictions.length == 1 && allPredictions[0].stopId == stopId || allPredictions[0].trDr == trDr) {
             utterance += allPredictions[0].eta;
           } else {
-            for(var i=0;i<allPredictions.length-1;i++) {
+            for (var i = 0; i < allPredictions.length - 1; i++) {
               if (allPredictions[i].stopId == stopId || allPredictions[i].trDr == trDr) {
                 utterance += allPredictions[i].eta + ", ";
               }
             }
             if (allPredictions[i].stopId == stopId || allPredictions[i].trDr == trDr) {
-              utterance += "and " + allPredictions[allPredictions.length-1].eta;
+              utterance += "and " + allPredictions[allPredictions.length - 1].eta;
             }
           }
           utterance += " minutes.";
@@ -726,25 +740,46 @@ jQuery(function($) {
       }
     }
 
-    $('#refresh-button').on('click', function(e) { //Handles the click/tap on the TOP button
+    $('#refresh-button').on('click', function (e) { //Handles the click/tap on the TOP button
       e.preventDefault();
       refreshScreen();
     });
 
+    function getTrainColor(vagueName) {
+      switch(vagueName) {
+        case 'Blu': return 'Blue';
+        break;
+        case 'Bro': return 'Brown';
+        break;
+        case 'Gre': return 'Green';
+        break;
+        case 'Ora': return 'Orange';
+        break;
+        case 'Pin': return 'Pink';
+        break;
+        case 'Red': return 'Red';
+        break;
+        case 'Yel': return 'Yellow';
+        break;
+        default: return vagueName;
+        break;
+      }
+    }
+
     function refreshScreen() {
-      if(!document.hidden) {
+      if (!document.hidden) {
         var screen = getScreen();
         var context = parseSearch(location.search);
         switch (screen) {
           case BUS_ARRIVALS:
-            listPredictions(context['rt'],context['rt-name'].replace(/%20/g, ' '),context['dir'],context['stop-id']);
+            listPredictions(context['rt'], context['rt-name'].replace(/%20/g, ' '), context['dir'], context['stop-id']);
             checkFavorite();
             break;
           case BUS_FOLLOW:
             listFollowBus(context['rt'], context['vid'], context['stop-id'], context['dir']);
             break;
           case TRAIN_ARRIVALS:
-            listTrainPredictions(context['tl'],context['dir'],context['stop']);
+            listTrainPredictions(context['tl'], context['dir'], context['stop']);
             checkFavorite();
             break;
           case TRAIN_FOLLOW:
@@ -757,8 +792,8 @@ jQuery(function($) {
             listBusRoutes();
             break;
           case BUS_STOPS:
-            localStorage.removeItem('lsBusStops'+context.rt+context['dir']);
-            listRouteStops(context.rt,context['dir']);
+            localStorage.removeItem('lsBusStops' + context.rt + context['dir']);
+            listRouteStops(context.rt, context['dir']);
             break;
           default:
             console.log("Do nothing");
